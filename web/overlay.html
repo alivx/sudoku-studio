@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>html,body{margin:0;height:100%;background:transparent;overflow:hidden}svg{position:absolute;inset:0;width:100%;height:100%}</style>
+<script>window.onerror = (m, src, line) => { try { window.webkit.messageHandlers.coach.postMessage({cmd: 'js_error', msg: 'overlay: ' + m + ' @' + line}); } catch (e) {} };</script>
+</head><body>
+<svg id="s" viewBox="0 0 339 747" preserveAspectRatio="none"></svg>
+<script src="i18n.js"></script>
+<script src="board.js"></script>
+<script>
+window.overlay = makeBoard(document.getElementById('s'));
+try { window.webkit.messageHandlers.coach.postMessage({cmd: 'overlay_ready'}); } catch (e) {}
+</script>
+</body></html>

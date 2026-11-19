@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Sudoku coach</title>
+<style>
+:root{--bg:#FBFAF7;--card:#fff;--text:#1f1e1c;--muted:#5f5e5a;--line:rgba(0,0,0,.1);--line2:rgba(0,0,0,.18);
+--accent:#534AB7;--accentBg:#EEEDFE;--accentText:#3C3489;--coral:#D85A30;--red:#A32D2D;
+--info:#0C447C;--infoBg:#E6F1FB;--ok:#27500A;--okBg:#EAF3DE;--warn:#633806;--warnBg:#FAEEDA;--err:#791F1F;--errBg:#FCEBEB;--focus:#378ADD}
+@media (prefers-color-scheme: dark){:root{--bg:#1d1c1a;--card:#262522;--text:#f1efe8;--muted:#b4b2a9;--line:rgba(255,255,255,.12);--line2:rgba(255,255,255,.22);
+--accent:#AFA9EC;--accentBg:#3C3489;--accentText:#EEEDFE;--coral:#F0997B;--red:#F09595;
+--info:#B5D4F4;--infoBg:#0C447C;--ok:#C0DD97;--okBg:#27500A;--warn:#FAC775;--warnBg:#633806;--err:#F7C1C1;--errBg:#791F1F;--focus:#85B7EB}}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font:13px/1.55 -apple-system,"SF Pro Text","SF Arabic","Geeza Pro",sans-serif}
+[dir=rtl] body{font-size:14px}
+body{padding:12px 14px 10px}
+button,summary{font:inherit;color:var(--text)}
+button{background:var(--card);border:1px solid var(--line2);border-radius:8px;padding:6px 10px;cursor:pointer;min-height:30px}
+button:hover{border-color:var(--accent)}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+@media (prefers-color-scheme: dark){button.primary{color:#1d1c1a}}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+header{display:flex;align-items:center;justify-content:space-between;gap:8px}
+header h1{font-size:15px;font-weight:600;margin:0}
+header .acts{display:flex;gap:6px}
+.icon{width:30px;padding:0;font-weight:600}
+.prog{margin:10px 0 8px}
+.bar{height:5px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);transition:width .4s}
+.prog .meta{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-top:4px}
+.status{display:flex;align-items:flex-start;gap:8px;border-radius:9px;padding:7px 10px;margin-bottom:8px;font-size:12.5px}
+.status:empty{display:none}
+.status.info{background:var(--infoBg);color:var(--info)}
+.status.success{background:var(--okBg);color:var(--ok)}
+.status.warning{background:var(--warnBg);color:var(--warn)}
+.status.error{background:var(--errBg);color:var(--err)}
+.status b{flex:none}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 13px;margin-bottom:10px}
+.review{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--warnBg);color:var(--warn);border-radius:8px;padding:5px 8px;margin-bottom:9px;font-size:12px}
+.review button{min-height:26px;padding:3px 8px;font-size:12px}
+.chiprow{display:flex;align-items:center;gap:8px;min-width:0}
+.chip{background:var(--accentBg);color:var(--accentText);border-radius:7px;padding:2px 9px;font-size:12.5px;font-weight:600;white-space:nowrap}
+.lvl{font-size:11.5px;color:var(--muted);white-space:nowrap}
+.short{font-size:12px;color:var(--muted);margin-top:4px}
+.turn button{white-space:nowrap}
+.stepper{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:10px 0 2px;padding:0;list-style:none}
+.stepper button{width:100%;border:0;background:none;padding:0 0 2px;min-height:0;font-size:11.5px;color:var(--muted);border-radius:4px}
+.stepper button::before{content:"";display:block;height:4px;border-radius:2px;background:var(--line);margin-bottom:4px}
+.stepper button.done{color:var(--text)}
+.stepper button.done::before{background:var(--accentBg);box-shadow:inset 0 0 0 1px var(--accent)}
+.stepper button[aria-current]{color:var(--accent);font-weight:700}
+.stepper button[aria-current]::before{background:var(--accent)}
+h2{font-size:15px;font-weight:600;margin:8px 0 4px;line-height:1.45}
+.why{margin:4px 0}
+.ans{margin:6px 0 0;font-weight:600;color:var(--accent)}
+.legend{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:8px;font-size:11.5px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.sw{width:11px;height:11px;border-radius:3px;display:inline-block;flex:none}
+.sw.sources{border-radius:50%;background:rgba(216,90,48,.25);border:2px solid #D85A30}
+.sw.pattern{background:rgba(127,119,221,.25);border:2px solid #534AB7}
+.sw.elim{background:rgba(226,75,74,.15);border:1.5px solid #E24B4A}
+.sw.place{background:#EEEDFE;border:2px solid #534AB7}
+details{border-radius:9px}
+details.idea{background:var(--accentBg);color:var(--accentText);padding:7px 10px;margin-top:9px;font-size:12.5px}
+details summary{cursor:pointer;font-weight:600;list-style-position:inside}
+details.idea p{margin:4px 0 0}
+.turn{border:1.5px dashed var(--accent);border-radius:9px;padding:8px 10px;margin-top:9px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.turn b{display:block}
+.turn span{font-size:12px;color:var(--muted)}
+.skel{background:var(--line);border-radius:6px;height:12px;margin:8px 0;animation:sk 1.2s ease-in-out infinite}
+@keyframes sk{50%{opacity:.45}}
+.empty h2{margin-top:2px}
+.empty ol{margin:6px 0 0;padding-inline-start:20px;color:var(--muted)}
+.empty li{margin:3px 0}
+.err details{margin-top:8px;font-size:11.5px;color:var(--muted)}
+.err pre{white-space:pre-wrap;word-break:break-word;margin:4px 0 0;font:11px/1.4 ui-monospace,Menlo,monospace}
+.btns{display:flex;gap:6px;margin-top:10px}
+.grow{flex:1}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}
+.stats div{background:var(--bg);border-radius:8px;padding:6px 8px}
+.stats b{display:block;font-size:16px}
+.stats span{font-size:11.5px;color:var(--muted)}
+.hbar{display:flex;align-items:center;gap:6px;font-size:12px;margin:3px 0}
+.hbar .lbl{width:118px;flex:none}
+.hbar i{display:block;height:6px;border-radius:3px;background:var(--accent)}
+nav.ctrl{display:flex;gap:6px;margin:2px 0 10px}
+.panelbox{background:var(--card);border:1px solid var(--line);padding:9px 12px;margin-bottom:8px}
+.panelbox > summary{font-size:12.5px}
+.panelbox .sum{font-weight:400;color:var(--muted);margin-inline-start:6px}
+.set{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;font-size:12.5px}
+.seg{display:inline-flex;border:1px solid var(--line2);border-radius:8px;overflow:hidden;flex:none}
+.seg button{border:0;border-radius:0;padding:3px 9px;min-height:26px;background:transparent;font-size:12px}
+.seg button[aria-pressed=true]{background:var(--accentBg);color:var(--accentText);font-weight:600}
+.tier{font-size:11.5px;color:var(--muted);margin:8px 0 3px;font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:4px;list-style:none;margin:0;padding:0}
+.chips li{border:1px solid var(--line2);padding:1px 7px;border-radius:6px;font-size:12px}
+.chips li.cur{background:var(--accentBg);color:var(--accentText);border-color:var(--accent);font-weight:600}
+.chips li.seen::after{content:" ✓";color:var(--ok)}
+.help p{margin:6px 0;font-size:12.5px}
+.help h3{font-size:12px;margin:10px 0 4px}
+.help dl{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;margin:0;font-size:12.5px}
+.help dt kbd{font:11px ui-monospace,Menlo,monospace;border:1px solid var(--line2);border-bottom-width:2px;border-radius:4px;padding:0 5px}
+footer{display:flex;justify-content:flex-end;margin-top:4px}
+footer button{font-size:12px;min-height:26px;padding:3px 10px;color:var(--muted)}
+.hidden{display:none !important}
+@media (prefers-reduced-motion: reduce){.skel{animation:none}.bar i{transition:none}}
+</style></head>
+<body>
+<header>
+  <h1 id="h1"></h1>
+  <div class="acts">
+    <button class="icon" id="helpBtn" aria-expanded="false" aria-controls="help" onclick="toggleHelp()">?</button>
+    <button id="langBtn" onclick="send({cmd:'lang'})"></button>
+  </div>
+</header>
+
+<main>
+<div class="prog" id="prog">
+  <div class="bar" role="progressbar" id="pbar" aria-valuemin="0"><i id="pfill" style="width:0"></i></div>
+  <div class="meta"><span id="pcells"></span><span id="pstep"></span><span id="ptime"></span></div>
+</div>
+<div class="status" id="status" role="status" aria-live="polite" dir="auto"></div>
+  <section class="card" id="vLoading" aria-busy="true">
+    <h2 class="sr" id="loadingT"></h2>
+    <div class="skel" style="width:40%"></div><div class="skel" style="width:90%;height:16px"></div>
+    <div class="skel" style="width:100%"></div><div class="skel" style="width:75%"></div>
+  </section>
+
+  <section class="card hidden" id="vLesson" aria-labelledby="where">
+    <div class="review hidden" id="review"><span id="reviewT"></span><button onclick="send({cmd:'live'})" id="liveBtn"></button></div>
+    <div class="chiprow"><span class="chip" id="tname"></span><span class="lvl" id="tlevel"></span></div>
+    <div class="short" id="tshort"></div>
+    <ol class="stepper" id="stepper"></ol>
+    <h2 id="where" tabindex="-1"></h2>
+    <p class="why" id="why"></p>
+    <p class="ans" id="ans"></p>
+    <div class="turn hidden" id="turn"><div><b id="turnT"></b><span id="turnX"></span></div>
+      <button class="primary" id="revealBtn" onclick="send({cmd:'reveal'})"></button></div>
+    <div class="legend" id="legend"></div>
+    <details class="idea" id="idea"><summary id="ideaT"></summary><p id="ideaX"></p></details>
+  </section>
+
+  <section class="card empty hidden" id="vEmpty">
+    <h2 id="emptyT"></h2>
+    <ol id="emptyList"></ol>
+    <p id="emptyX" class="why"></p>
+    <div class="btns"><button class="primary grow hidden" id="emptyBtn" onclick="send({cmd:'next_puzzle'})"></button></div>
+  </section>
+
+  <section class="card err hidden" id="vError" role="alert">
+    <h2 id="errT"></h2>
+    <p id="errX" class="why"></p>
+    <div class="btns"><button class="primary grow" id="retryBtn" onclick="send({cmd:'retry'})"></button>
+      <button id="logBtn" onclick="send({cmd:'open_log'})"></button></div>
+    <details><summary id="errD"></summary><pre id="errRaw"></pre></details>
+  </section>
+
+  <section class="card hidden" id="vSummary" aria-labelledby="sumTitle">
+    <h2 id="sumTitle"></h2>
+    <div class="stats" id="stats"></div>
+    <div class="tier" id="usedTitle"></div>
+    <div id="bars"></div>
+    <div class="btns"><button class="primary grow" id="nextPuzzle" onclick="send({cmd:'next_puzzle'})"></button></div>
+  </section>
+</main>
+
+<nav class="ctrl" id="ctrl">
+  <button id="prevBtn" onclick="send({cmd:'back'})"></button>
+  <button id="playBtn" class="grow" aria-pressed="false" onclick="send({cmd:'play'})"></button>
+  <button id="contBtn" onclick="send({cmd:'next'})"></button>
+</nav>
+
+<aside id="extras">
+<details class="panelbox" id="settings"><summary id="setT"></summary>
+  <div class="set"><span id="speedL"></span><span class="seg" id="speed" role="group"></span></div>
+  <div class="set"><span id="placerL"></span><span class="seg" id="placer" role="group"></span></div>
+  <div class="set"><span id="candsL"></span><span class="seg" id="cands" role="group"></span></div>
+  <div class="set"><span id="quickL"></span><span class="seg" id="quick" role="group"></span></div>
+  <div class="set" id="numRow"><span id="numL"></span><span class="seg" id="num" role="group"></span></div>
+</details>
+
+<details class="panelbox" id="path"><summary><span id="pathT"></span><span class="sum" id="pathS"></span></summary>
+  <div id="tiers"></div>
+</details>
+
+<details class="panelbox help" id="help"><summary id="helpT"></summary>
+  <p id="helpSteps"></p>
+  <h3 id="helpColors"></h3><div class="legend" id="helpLegend" style="margin-top:0"></div>
+  <p id="helpBoxes"></p>
+  <p id="helpModes"></p>
+  <h3 id="helpKeys"></h3><dl id="keys"></dl>
+</details>
+
+</aside>
+
+<footer><button id="closeBtn" onclick="send({cmd:'quit'})"></button></footer>
+
+<script>window.onerror = (m, src, line) => { try { window.webkit.messageHandlers.coach.postMessage({cmd: 'js_error', msg: 'panel: ' + m + ' @' + line}); } catch (e) {} };</script>
+<script src="i18n.js"></script>
+<script>
+const ORDER = [[1, ['full_house', 'hidden_single', 'naked_single']], [2, ['pointing', 'claiming', 'naked_pair', 'hidden_pair']],
+  [3, ['naked_triple', 'hidden_triple', 'x_wing', 'skyscraper', 'kite', 'xy_wing']], [4, ['swordfish', 'reveal']]];
+const ALL = ORDER.flatMap(o => o[1]);
+const $ = id => document.getElementById(id);
+function send(msg) { try { window.webkit.messageHandlers.coach.postMessage(msg); } catch (e) { console.log('send', JSON.stringify(msg)); } }
+function txt(id, v) { $(id).textContent = v == null ? '' : v; }
+function show(id, on) { $(id).classList.toggle('hidden', !on); }
+function seg(id, label, opts, cur, cmd) {
+  const s = $(id); s.innerHTML = ''; s.setAttribute('aria-label', label);
+  opts.forEach(([v, l]) => {
+    const b = document.createElement('button'); b.textContent = l; b.setAttribute('aria-pressed', String(v === cur));
+    b.onclick = () => send({cmd, value: v}); s.appendChild(b);
+  });
+}
+['settings', 'path', 'help'].forEach(id => {
+  try { if (localStorage.getItem('open_' + id) === '1') $(id).open = true; } catch (e) {}
+  $(id).addEventListener('toggle', () => { try { localStorage.setItem('open_' + id, $(id).open ? '1' : '0'); } catch (e) {}
+    if (id === 'help') $('helpBtn').setAttribute('aria-expanded', String($(id).open)); });
+});
+function toggleHelp() { $('help').open = !$('help').open; if ($('help').open) $('help').scrollIntoView({block: 'nearest'}); }
+let S = {}, lastStepKey = null;
+const TONE = {reading: 'info', waiting: 'info', new_game: 'info', solved_wait: 'success', correct: 'success', placing: 'warning',
+  mouse_paused: 'warning', paused: 'info', your_turn_shown: 'info', not_that: 'warning', check_phone: 'warning'};
+const ICON = {info: 'ⓘ', success: '✓', warning: '!', error: '✕'};
+
+function update(state) {
+  S = Object.assign(S, state);
+  const ar = S.lang === 'ar';
+  T.set(S.lang || 'en', S.eastern);
+  document.documentElement.dir = ar ? 'rtl' : 'ltr';
+  document.documentElement.lang = S.lang || 'en';
+  document.title = T.ui('doc_title');
+  txt('h1', T.ui('mode_watch'));
+  txt('langBtn', T.ui('lang')); $('langBtn').setAttribute('aria-label', T.ui('lang_name'));
+  $('langBtn').setAttribute('lang', ar ? 'en' : 'ar');
+  $('helpBtn').setAttribute('aria-label', T.ui('help'));
+
+  const p = S.progress;
+  show('prog', !!(p && p.total));
+  if (p && p.total) {
+    $('pfill').style.width = Math.round(p.filled / p.total * 100) + '%';
+    $('pbar').setAttribute('aria-valuemax', p.total); $('pbar').setAttribute('aria-valuenow', p.filled);
+    $('pbar').setAttribute('aria-label', T.ui('progress', {f: p.filled, t: p.total}));
+    txt('pcells', T.ui('progress', {f: p.filled, t: p.total}));
+    txt('pstep', S.stepNo ? T.ui('step_no', {n: S.stepNo}) : '');
+    txt('ptime', T.num(Math.floor(p.elapsed / 60) + ':' + String(p.elapsed % 60).padStart(2, '0')));
+  }
+
+  const st = S.status, box = $('status');
+  if (st && st.key && T.ui('status.' + st.key) && S.view !== 'error') {
+    const tone = st.tone || TONE[st.key] || 'info';
+    box.className = 'status ' + tone;
+    box.innerHTML = '<b aria-hidden="true"></b><span></span>';
+    box.children[0].textContent = ICON[tone]; box.children[1].textContent = T.ui('status.' + st.key, st.p || {});
+  } else { box.className = 'status'; box.textContent = ''; }
+
+  const view = S.view || 'loading';
+  ['vLoading', 'vLesson', 'vEmpty', 'vError', 'vSummary'].forEach(v => show(v, v === 'v' + view[0].toUpperCase() + view.slice(1)));
+  txt('loadingT', T.ui('loading'));
+  const lesson = view === 'lesson';
+  show('ctrl', lesson);
+  if (lesson && S.step) drawLesson();
+  if (view === 'empty') drawEmpty();
+  if (view === 'error') drawError();
+  if (view === 'summary' && S.summary) drawSummary(S.summary);
+
+  txt('prevBtn', (ar ? '→ ' : '← ') + T.ui('prev'));
+  txt('contBtn', T.ui('cont') + (ar ? ' ←' : ' →'));
+  txt('playBtn', S.playing ? '❚❚ ' + T.ui('pause') : '▶ ' + T.ui('play'));
+  $('playBtn').setAttribute('aria-pressed', String(!S.playing));
+  $('prevBtn').setAttribute('aria-disabled', String(!S.stepNo || S.stepNo <= 1));
+
+  txt('setT', T.ui('settings'));
+  txt('speedL', T.ui('speed')); seg('speed', T.ui('speed'), [['slow', T.ui('slow')], ['normal', T.ui('normal')], ['fast', T.ui('fast')]], S.speed, 'speed');
+  txt('placerL', T.ui('placer')); seg('placer', T.ui('placer'), [['coach', T.ui('coach')], ['me', T.ui('me')]], S.placer, 'placer');
+  txt('candsL', T.ui('cands')); seg('cands', T.ui('cands'), [[true, T.ui('on')], [false, T.ui('off')]], !!S.showCands, 'cands');
+  txt('quickL', T.ui('quick')); seg('quick', T.ui('quick'), [[true, T.ui('on')], [false, T.ui('off')]], S.quickBasics !== false, 'quick');
+  show('numRow', ar);
+  txt('numL', T.ui('numerals')); seg('num', T.ui('numerals'), [[true, T.ui('on')], [false, T.ui('off')]], !!S.eastern, 'eastern');
+
+  const seen = S.seen || {}, cur = lesson && S.step && S.step.tech;
+  txt('pathT', T.ui('path'));
+  txt('pathS', T.ui('path_sum', {n: ALL.filter(k => seen[k]).length, t: ALL.length}));
+  const tiers = $('tiers'); tiers.innerHTML = '';
+  ORDER.forEach(([tier, techs]) => {
+    const h = document.createElement('div'); h.className = 'tier'; h.textContent = T.ui('tiers')[tier]; tiers.appendChild(h);
+    const ul = document.createElement('ul'); ul.className = 'chips';
+    techs.forEach(k => { const li = document.createElement('li'); li.textContent = T.tech(k).name;
+      if (k === cur) { li.className = 'cur'; li.setAttribute('aria-current', 'true'); } else if (seen[k]) li.className = 'seen';
+      ul.appendChild(li); });
+    tiers.appendChild(ul);
+  });
+
+  txt('helpT', T.ui('help_title')); txt('helpSteps', T.ui('help_steps')); txt('helpColors', T.ui('help_colors'));
+  legend('helpLegend', ['pattern', 'sources', 'elim', 'place']);
+  txt('helpBoxes', T.ui('help_boxes')); txt('helpModes', T.ui('help_modes')); txt('helpKeys', T.ui('help_keys'));
+  const dl = $('keys'); dl.innerHTML = '';
+  T.ui('keys').forEach(([k, v]) => { const dt = document.createElement('dt'), dd = document.createElement('dd');
+    dt.innerHTML = '<kbd></kbd>'; dt.firstChild.textContent = k; dd.textContent = v; dd.style.margin = 0; dl.append(dt, dd); });
+  txt('closeBtn', T.ui('close'));
+  $('ctrl').setAttribute('aria-label', T.ui('controls'));
+  $('extras').setAttribute('aria-label', T.ui('settings') + ', ' + T.ui('path') + ', ' + T.ui('help'));
+}
+
+function legend(id, kinds) {
+  const l = $(id); l.innerHTML = '';
+  kinds.forEach(k => { const s = document.createElement('span'); s.innerHTML = '<i class="sw ' + k + '" aria-hidden="true"></i><span></span>';
+    s.lastChild.textContent = T.ui('legend')[k]; l.appendChild(s); });
+}
+
+function drawLesson() {
+  const step = S.step, stage = S.stage || 0, tx = T.stepText(step);
+  const meTurn = !!S.yourTurn && !S.review;
+  show('review', !!S.review);
+  if (S.review) { txt('reviewT', T.ui('review', {n: S.review.n, t: S.review.t})); txt('liveBtn', T.ui('live')); }
+  txt('tname', tx.name);
+  txt('tlevel', T.ui('level', {n: step.tier})); txt('tshort', tx.short);
+  const sp = $('stepper'); sp.innerHTML = '';
+  T.ui('stages').forEach((name, k) => {
+    const li = document.createElement('li'), b = document.createElement('button');
+    b.textContent = name; b.setAttribute('aria-label', T.ui('stage_go', {s: name}));
+    if (k === stage) b.setAttribute('aria-current', 'step'); else if (k < stage) b.className = 'done';
+    b.onclick = () => send({cmd: 'stage', value: k});
+    li.appendChild(b); sp.appendChild(li);
+  });
+  txt('where', tx.where);
+  txt('why', stage >= 2 ? tx.why : '');
+  let ans = stage >= 3 ? tx.answer : '';
+  if (stage >= 3 && !step.place && step.elim.length) ans += ' ' + T.ui(step.elim.length === 1 ? 'removed_one' : 'removed', {n: step.elim.length});
+  txt('ans', ans);
+  show('turn', meTurn && stage < 3 && !!step.place);
+  txt('turnT', T.ui('your_turn')); txt('turnX', T.ui('your_turn_text')); txt('revealBtn', T.ui('show_answer'));
+  const kinds = [];
+  if (stage >= 1 && step.pattern.length) kinds.push('pattern');
+  if (stage >= 1 && (step.sources || []).length) kinds.push('sources');
+  if (stage >= 2 && step.elim.length) kinds.push('elim');
+  if (stage >= 3 && step.place) kinds.push('place');
+  legend('legend', kinds);
+  txt('ideaT', T.ui('idea')); txt('ideaX', tx.concept);
+  const key = step.tech + ':' + (step.target ?? '') + ':' + step.elim.length;
+  if (key !== lastStepKey) {
+    lastStepKey = key;
+    $('idea').open = ((S.seen || {})[step.tech] || 0) < 3;
+  }
+}
+function drawEmpty() {
+  const finished = S.empty === 'finished';
+  txt('emptyT', T.ui(finished ? 'empty_finished_title' : 'empty_nogame_title'));
+  const ol = $('emptyList'); ol.innerHTML = '';
+  if (!finished) T.ui('empty_nogame').forEach(t => { const li = document.createElement('li'); li.textContent = t; ol.appendChild(li); });
+  txt('emptyX', finished ? T.ui('empty_finished') : '');
+  show('emptyBtn', finished); txt('emptyBtn', T.ui('new_puzzle'));
+}
+function drawError() {
+  const e = S.error || {};
+  txt('errT', T.ui('error_title')); txt('errX', T.ui('errors.' + (e.kind || 'other')));
+  txt('retryBtn', T.ui('retry')); txt('logBtn', T.ui('open_log')); txt('errD', T.ui('details')); txt('errRaw', e.msg || '');
+}
+function drawSummary(s) {
+  txt('sumTitle', T.ui('solved'));
+  const st = $('stats'); st.innerHTML = '';
+  [[T.num(Math.floor(s.time / 60) + ':' + String(s.time % 60).padStart(2, '0')), T.ui('time')], [T.num(s.steps), T.ui('steps')],
+   [s.hardest ? T.tech(s.hardest).name : '–', T.ui('hardest')]].forEach(([v, l]) => {
+    const d = document.createElement('div'); d.innerHTML = '<b></b><span></span>'; d.children[0].textContent = v; d.children[1].textContent = l; st.appendChild(d); });
+  txt('usedTitle', T.ui('used_title'));
+  const max = Math.max(1, ...Object.values(s.used)), bars = $('bars'); bars.innerHTML = '';
+  Object.entries(s.used).sort((a, b) => b[1] - a[1]).forEach(([k, n]) => {
+    const d = document.createElement('div'); d.className = 'hbar'; d.innerHTML = '<span class="lbl"></span><i aria-hidden="true"></i><span></span>';
+    d.children[0].textContent = T.tech(k).name; d.children[1].style.width = (n / max * 110) + 'px'; d.children[2].textContent = T.num(n);
+    bars.appendChild(d); });
+  txt('nextPuzzle', T.ui('new_puzzle'));
+}
+window.panel = {update};
+document.addEventListener('keydown', e => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const tag = (e.target.tagName || '').toLowerCase();
+  if (e.key === ' ' && (tag === 'button' || tag === 'summary')) return;
+  const ar = S.lang === 'ar';
+  const map = {' ': 'play', ArrowRight: ar ? 'back' : 'next', ArrowLeft: ar ? 'next' : 'back', a: 'reveal', A: 'reveal', l: 'lang', L: 'lang'};
+  const k = map[e.key];
+  if (k) { e.preventDefault(); send({cmd: k}); }
+});
+update({view: 'loading', lang: 'en'});
+send({cmd: 'ready'});
+</script>
+</body></html>

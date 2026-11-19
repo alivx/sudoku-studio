@@ -1,0 +1,16 @@
+[project]
+name = "sudoku-studio"
+version = "0.1.0"
+description = "Play, learn and test Sudoku on your iPhone from your Mac through iPhone Mirroring. Rule-based, no AI."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Ali Baker" }]
+requires-python = ">=3.10"
+
+[project.urls]
+Homepage = "https://github.com/alivx/sudoku-studio"
+Issues = "https://github.com/alivx/sudoku-studio/issues"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

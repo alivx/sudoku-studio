@@ -1,0 +1,392 @@
+// Coach text in English and Arabic. Placeholders: {d} digit, {unit}/{box}/{line}/{row}/{col} unit,
+// {base}/{cover}/{lines} unit lists, {cell}/{pivot}/{w1}/{w2} cells, {ends} cell list,
+// {digits}/{seen}/{earlier}/{options} digit lists, {x|or} = join with "or".
+window.I18N = {
+en: {
+  ui: {
+    app: 'Sudoku Studio', tabs: ['Play', 'Learn', 'Help'], chapters: ['Chapter I', 'Chapter II', 'Appendix'], close_app: 'Close Sudoku Studio', move_hint: 'Drag the top of the page to move the book', marks_play: 'Bookmark: playing', marks_learn: 'Bookmark: learning', running: 'running',
+    play_title: 'Play for me', play_sub: 'The bot solves puzzles on your phone while you watch.',
+    games: 'Games', play_level: 'Level', levels: {easy: 'Easy', medium: 'Medium', hard: 'Hard', expert: 'Expert', master: 'Master', extreme: 'Extreme'},
+    pattern: 'Fill order', patterns: {number: 'By number', row: 'By row', column: 'By column', box: 'By box', snake: 'Snake'},
+    pattern_hint: {number: 'All 1s, then all 2s… fewest score pop-ups', row: 'Top row to bottom row', column: 'Left column to right column', box: 'Box 1 to box 9', snake: 'Row by row, turning at each end'},
+    tap_speed: 'Tap speed', speeds: {safe: 'Safe', fast: 'Fast', turbo: 'Turbo'}, speed_note: 'About {s} s per game',
+    resume: 'Continue the open puzzle', resume_hint: 'Keeps your correct numbers and fixes wrong ones.',
+    popups: 'Tap one-button pop-ups', popups_hint: 'Such as Collect. Off: the bot stops and leaves it to you.',
+    start_play: 'Start playing', pause_play: 'Pause', resume_play: 'Resume', stop_play: 'Stop',
+    run: {running: 'Playing', paused: 'Paused', stopping: 'Stopping', done: 'Finished', stopped: 'Stopped', idle: 'Ready'},
+    game_of: 'Game {n} of {t}', cells_left: '{n} cells left', results: 'Results', avg: 'Average {t}', best: 'Best {t}',
+    last_action: 'Last action', game_n: 'Game {n}', mode_switched: 'Learning stopped so the bot can use the phone.',
+    learn_switched: 'Playing stopped so the coach can use the phone.', demo_no_play: 'Play needs the phone (you started the demo).',
+    learn_title: 'Learn with the coach', learn_sub: 'Open a puzzle on the phone. The coach explains one move at a time and waits for you to press Next.',
+    learn_start: 'Start learning', learn_stop: 'Stop learning', auto: 'Auto-advance', auto_hint: 'Off: nothing moves until you press Next.',
+    next: 'Next', auto_on: 'Auto', new_level: 'Level for new puzzles',
+    check_title: 'Ready check', check_again: 'Check again', checking: 'Checking…',
+    checks: {ax: 'Clicks allowed (Accessibility)', screen: 'Screenshots allowed (Screen Recording)', window: 'iPhone Mirroring open', board: 'Sudoku on screen'},
+    screen_kind: {game: 'Puzzle on screen', complete: 'Result screen', sheet: 'Level menu', home: 'Home screen', popup: 'Pop-up', other: 'Not recognised'},
+    fix_settings: 'Open settings', fix_mirroring: 'Open iPhone Mirroring',
+    fix_hint: 'Turn on the app that started Sudoku Studio (usually Terminal), then quit and reopen it.',
+    all_ready: 'Everything is ready.', not_ready: '{n} things to fix before playing.', not_ready_one: '1 thing to fix before playing.',
+    ways_title: 'Two ways to use it',
+    way_play: 'Play: the bot finishes puzzles for you, fast. Good for testing the game.',
+    way_learn: 'Learn: the coach shows each move and why it works. You set the pace with Next.',
+    lib_title: 'Technique library', lib_sub: 'Pick one to see it on a real board, stage by stage.', lib_from: 'Example from a real puzzle',
+    trouble_title: 'If something goes wrong',
+    troubles: [['Taps are missed', 'Choose the Safe tap speed and keep the mouse still while the bot taps.'],
+               ['The board isn’t read', 'Keep iPhone Mirroring fully visible and don’t resize it while playing.'],
+               ['It stops at a pop-up', 'Close the pop-up on the phone, or allow one-button pop-ups in Play.'],
+               ['“Beyond the coach” appears', 'That move needs logic the coach doesn’t teach yet. It reveals one checked number so you can go on.']],
+    open_play_log: 'Open play log', open_learn_log: 'Open learn log',
+    doc_title: 'Sudoku coach', mode_watch: 'Watch and learn', help: 'Help', lang: 'العربية', lang_name: 'Switch to Arabic',
+    stages: ['Where', 'What', 'Why', 'Answer'], stage_go: 'Show stage: {s}', idea: 'The idea', level: 'Level {n}',
+    progress: '{f} of {t} cells', step_no: 'Step {n}',
+    controls: 'Lesson controls', prev: 'Previous step', play: 'Play', pause: 'Pause', cont: 'Continue',
+    review: 'Earlier step {n} of {t}', live: 'Back to current step',
+    your_turn: 'Your turn', your_turn_text: 'Find the number and put it on the phone.', show_answer: 'Show answer',
+    legend: { sources: 'Blocking numbers', pattern: 'Key cells', elim: 'Removed', place: 'Answer' },
+    removed: 'That removes {n} options.', removed_one: 'That removes 1 option.',
+    settings: 'Settings', speed: 'Speed', slow: 'Slow', normal: 'Normal', fast: 'Fast',
+    placer: 'Who places numbers', coach: 'Coach', me: 'Me', cands: 'All options on board',
+    quick: 'Speed up easy steps I know', numerals: 'Arabic-Indic numerals', on: 'On', off: 'Off',
+    path: 'Techniques', path_sum: '{n} of {t} seen',
+    tiers: ['', 'Basics: scanning', 'Locking and pairs', 'Patterns', 'Advanced'],
+    help_title: 'How the coach works',
+    help_steps: 'Each move comes in four stages: Where to look, What matters, Why it works, and the Answer.',
+    help_colors: 'Colours on the board',
+    help_keys: 'Keys (while learning, click this window first)', keys: [['Space or →', 'Next'], ['←', 'Previous step'], ['A', 'Show answer'], ['P', 'Auto-advance on or off'], ['L', 'Switch language']],
+    help_boxes: 'Boxes are numbered 1–9 from the top left, row by row. R5C3 means row 5, column 3.',
+    help_modes: 'Coach: the coach taps the phone for you. Me: you place each number; press Show answer when you’re stuck.',
+    loading: 'Reading the board',
+    empty_nogame_title: 'Open a puzzle on your phone',
+    empty_nogame: ['Open iPhone Mirroring and unlock the phone', 'Open a Sudoku puzzle', 'The coach starts as soon as it sees the board'],
+    empty_finished_title: 'This puzzle is finished', empty_finished: 'Start a new one and the coach takes it from the first move.',
+    new_puzzle: 'Start new puzzle',
+    error_title: 'The coach stopped', retry: 'Try again', open_log: 'Open log', details: 'Details',
+    errors: { no_window: 'iPhone Mirroring isn’t open. Open it, unlock the phone and try again.',
+              permission: 'macOS blocked screenshots or clicks. Allow Terminal in Privacy & Security, then try again.',
+              stuck: 'The phone didn’t respond to the coach’s taps. Check the phone screen, then try again.',
+              popup: 'A pop-up on the phone needs you. Close it on the phone, then try again.',
+              other: 'Something unexpected happened. Try again, or send the log.' },
+    solved: 'Puzzle solved', steps: 'Steps', time: 'Time', hardest: 'Hardest step', used_title: 'Techniques in this puzzle',
+    close: 'Close coach',
+    status: {
+      reading: 'Reading the board', waiting: 'Waiting for the game screen', new_game: 'Opening a new puzzle',
+      placing: 'Placing {d} in {cell}. Hands off the mouse for a moment.',
+      mouse_paused: 'Paused while you use the mouse. Keep it still for 3 seconds to continue.',
+      paused: 'Paused. Press Continue to go stage by stage.',
+      your_turn_shown: 'Put {d} in {cell} on the phone.', not_that: 'Not quite: {cell} needs {d}.',
+      correct: 'Correct: {d} in {cell}.', solved_wait: 'Solved. Waiting for the result screen', check_phone: 'Check the phone'
+    }
+  },
+  units: { row: 'row {i}', col: 'column {i}', box: 'box {i}',
+           rows: 'rows {l}', cols: 'columns {l}', boxs: 'boxes {l}' },
+  and: ' and ', or: ' or ', cell: 'R{r}C{c}',
+  tech: {
+    mistake: { name: 'Wrong number', short: 'A number that breaks the puzzle',
+      concept: 'Fix wrong numbers first. Every move built on a wrong number will be wrong too.',
+      where: 'Check {cell}.',
+      why: 'The {d} in {cell} doesn’t fit the puzzle’s only solution.',
+      why_clash: 'The {d} in {cell} clashes with another {d} in the same row, column or box.',
+      answer: 'It should be {right}.' },
+    full_house: { name: 'Full house', short: 'The last empty cell in a group',
+      concept: 'When a row, column or box already has eight numbers, the ninth is whichever one is missing. Always check this first. It’s the cheapest move there is.',
+      where: '{Unit} is almost full.',
+      why: '{Unit} already has eight numbers. The only one missing is {d}.',
+      answer: 'Put {d} in {cell}.' },
+    hidden_single: { name: 'Hidden single', short: 'Only one place left for a number',
+      concept: 'Pick a number and a box (or a row or column). Every copy of that number elsewhere blocks its whole row and column. If only one empty cell isn’t blocked, the number must go there, even if that cell could hold other numbers too.',
+      where: 'Look at {unit}. Where can the {d} go?',
+      why: 'Each {d} nearby blocks its row and column (the beams). Every empty cell in {unit} is blocked except one.',
+      why_earlier: '{earlier} of the blocked cells were ruled out by an earlier step.',
+      answer: 'The {d} must go in {cell}.' },
+    naked_single: { name: 'Naked single', short: 'Only one number fits a cell',
+      concept: 'Look at one cell and collect the numbers already in its row, column and box. If eight different numbers are there, the cell gets the ninth.',
+      where: 'Look at {cell}.',
+      why: 'Its row, column and box already contain {seen}.',
+      why_earlier: '{earlier} was ruled out by an earlier step.',
+      answer: 'Only {d} is left, so {cell} = {d}.' },
+    pointing: { name: 'Pointing', short: 'A number locked to one line inside a box',
+      concept: 'If, inside a box, a number can only go in cells on the same row (or column), then that line’s copy of the number is inside this box. It can’t be anywhere else on that line.',
+      where: 'Look at the {d}s in {box}.',
+      why: 'In {box}, {d} can only go in the purple cells, and they all sit in {line}. So the {d} for {line} is inside {box}.',
+      answer: 'Remove {d} from the rest of {line} (red).' },
+    claiming: { name: 'Claiming', short: 'A line locks a number into one box',
+      concept: 'If, on a row (or column), a number can only go in cells inside one box, then that box must put its copy of the number on this line. Remove it from the box’s other cells.',
+      where: 'Look at the {d}s in {line}.',
+      why: 'In {line}, {d} can only go in the purple cells, and they’re all inside {box}. So {box} must use its {d} on {line}.',
+      answer: 'Remove {d} from the other cells of {box} (red).' },
+    naked_pair: { name: 'Naked pair', short: 'Two cells sharing the same two numbers',
+      concept: 'Two cells in the same row, column or box that can only hold the same two numbers. Those numbers are used up by these two cells, so no other cell in that group can have them.',
+      where: 'Look at the purple cells in {unit}.',
+      why: 'Together they can only hold {digits}. Same number of cells as numbers, so they’ll take all of them.',
+      answer: 'Remove {digits} from the other cells of {unit} (red).' },
+    naked_triple: { name: 'Naked triple', short: 'Three cells sharing three numbers',
+      concept: 'Three cells in one group whose options, all together, are only three numbers. Those three numbers belong to these cells. Remove them from the rest of the group.',
+      where: 'Look at the purple cells in {unit}.',
+      why: 'Together they can only hold {digits}. Same number of cells as numbers, so they’ll take all of them.',
+      answer: 'Remove {digits} from the other cells of {unit} (red).' },
+    hidden_pair: { name: 'Hidden pair', short: 'Two numbers with only two homes',
+      concept: 'Two numbers that, in one group, can only go in the same two cells. Those cells must hold these two numbers, so any other options in them can go.',
+      where: 'Look for {digits} in {unit}.',
+      why: 'In {unit}, {digits} can only go in the purple cells. Same number of numbers as cells, so these cells are reserved for them.',
+      answer: 'Remove the other options from the purple cells (red).' },
+    hidden_triple: { name: 'Hidden triple', short: 'Three numbers with only three homes',
+      concept: 'Three numbers that, in one group, can only go in the same three cells. Those cells are reserved for them, so remove any other options from them.',
+      where: 'Look for {digits} in {unit}.',
+      why: 'In {unit}, {digits} can only go in the purple cells. Same number of numbers as cells, so these cells are reserved for them.',
+      answer: 'Remove the other options from the purple cells (red).' },
+    x_wing: { name: 'X-Wing', short: 'Two lines, two cross-lines, one number',
+      concept: 'A number has exactly two spots in each of two rows, and those spots line up in the same two columns. The number must sit on opposite corners of that rectangle, so both columns get their copy from these cells. Remove it from the rest of those columns. It works the same with rows and columns swapped.',
+      where: 'Look at the {d}s in {base}.',
+      why: 'In {base}, {d} can only go in the purple cells, which line up in {cover}. Whichever way it falls, the {d} for {cover} comes from these cells.',
+      answer: 'Remove {d} from the rest of {cover} (red).' },
+    swordfish: { name: 'Swordfish', short: 'An X-Wing with three lines',
+      concept: 'In three rows, a number only appears in the same three columns. Those columns get all their copies from these cells, so remove the number from the rest of them. Rows and columns can be swapped.',
+      where: 'Look at the {d}s in {base}.',
+      why: 'In {base}, {d} can only go in the purple cells, which all sit in {cover}. The {d} for {cover} comes from these cells.',
+      answer: 'Remove {d} from the rest of {cover} (red).' },
+    skyscraper: { name: 'Skyscraper', short: 'Two lines joined at the base',
+      concept: 'Two lines each have exactly two spots for a number, and one spot from each lines up (the base). Both base spots can’t be the number, so at least one of the two top ends is. A cell that sees both top ends can’t be that number.',
+      where: 'Look at the {d}s in {lines}.',
+      why: 'Each line has only two spots for {d}. The base spots line up, so they can’t both be {d}. At least one of the top ends ({ends}) is.',
+      answer: 'Remove {d} from cells that see both ends (red).' },
+    kite: { name: '2-String Kite', short: 'A row and a column tied in one box',
+      concept: 'A row and a column each have exactly two spots for a number, and one spot from each sits in the same box. Those two can’t both be the number, so at least one of the far ends is. Remove it from any cell that sees both far ends.',
+      where: 'Look at the {d}s in {row} and {col}.',
+      why: '{Row} and {col} each have two spots for {d}. The two spots in {box} can’t both be {d}, so one of the far ends ({ends}) is.',
+      answer: 'Remove {d} from cells that see both ends (red).' },
+    xy_wing: { name: 'XY-Wing', short: 'Three cells with two options each',
+      concept: 'A pivot cell with options A and B sees two wing cells, A/C and B/C. If the pivot is A, one wing becomes C. If it’s B, the other wing does. Either way one wing is C, so a cell that sees both wings can’t be C.',
+      where: 'Look at {pivot} and its two wings.',
+      why: '{Pivot} is either {ab|or}. Whichever it is, one wing ({w1} or {w2}) becomes {z}.',
+      answer: 'Remove {z} from cells that see both wings (red).' },
+    reveal: { name: 'Beyond the coach', short: 'Needs a long chain of logic',
+      concept: 'This spot needs a long chain of logic the coach doesn’t teach yet. The coach checked the full solution so you can keep going.',
+      where: 'This step is harder than the coach’s methods.',
+      why: '{Cell} can be {options|or}. Checking every possibility shows only one works.',
+      answer: '{Cell} = {d}.' }
+  }
+},
+ar: {
+  ui: {
+    app: 'استوديو سودوكو', tabs: ['اللعب', 'التعلّم', 'المساعدة'], chapters: ['الفصل الأول', 'الفصل الثاني', 'ملحق'], close_app: 'إغلاق استوديو سودوكو', move_hint: 'اسحب أعلى الصفحة لتحريك الكتاب', marks_play: 'علامة: يلعب', marks_learn: 'علامة: يتعلّم', running: 'يعمل',
+    play_title: 'العب عني', play_sub: 'يحل البوت الألغاز على هاتفك وأنت تشاهد.',
+    games: 'عدد الألعاب', play_level: 'المستوى', levels: {easy: 'سهل', medium: 'متوسط', hard: 'صعب', expert: 'خبير', master: 'محترف', extreme: 'فائق الصعوبة'},
+    pattern: 'ترتيب التعبئة', patterns: {number: 'حسب الرقم', row: 'حسب الصف', column: 'حسب العمود', box: 'حسب المربع', snake: 'متعرّج'},
+    pattern_hint: {number: 'كل الآحاد ثم كل الاثنين… أقل نوافذ نقاط', row: 'من الصف العلوي إلى السفلي', column: 'من العمود الأيسر إلى الأيمن', box: 'من المربع 1 إلى المربع 9', snake: 'صفًا بصف مع تغيير الاتجاه عند كل طرف'},
+    tap_speed: 'سرعة النقر', speeds: {safe: 'آمن', fast: 'سريع', turbo: 'فائق'}, speed_note: 'حوالي {s} ثانية لكل لعبة',
+    resume: 'إكمال اللغز المفتوح', resume_hint: 'يحتفظ بأرقامك الصحيحة ويصحح الخاطئة.',
+    popups: 'النقر على النوافذ ذات الزر الواحد', popups_hint: 'مثل «استلام». عند الإيقاف: يتوقف البوت ويتركها لك.',
+    start_play: 'ابدأ اللعب', pause_play: 'إيقاف مؤقت', resume_play: 'استئناف', stop_play: 'إيقاف',
+    run: {running: 'يلعب', paused: 'متوقف مؤقتًا', stopping: 'جارٍ الإيقاف', done: 'انتهى', stopped: 'توقف', idle: 'جاهز'},
+    game_of: 'اللعبة {n} من {t}', cells_left: 'خانات متبقية: {n}', results: 'النتائج', avg: 'المتوسط {t}', best: 'الأفضل {t}',
+    last_action: 'آخر إجراء', game_n: 'اللعبة {n}', mode_switched: 'تم إيقاف التعلّم ليستخدم البوت الهاتف.',
+    learn_switched: 'تم إيقاف اللعب ليستخدم المدرب الهاتف.', demo_no_play: 'اللعب يحتاج الهاتف (بدأت الوضع التجريبي).',
+    learn_title: 'تعلّم مع المدرب', learn_sub: 'افتح لغزًا على الهاتف. يشرح المدرب خطوة واحدة في كل مرة وينتظرك حتى تضغط التالي.',
+    learn_start: 'ابدأ التعلّم', learn_stop: 'إيقاف التعلّم', auto: 'التقدّم التلقائي', auto_hint: 'عند الإيقاف: لا يتحرك شيء حتى تضغط التالي.',
+    next: 'التالي', auto_on: 'تلقائي', new_level: 'مستوى الألغاز الجديدة',
+    check_title: 'فحص الجاهزية', check_again: 'أعد الفحص', checking: 'جارٍ الفحص…',
+    checks: {ax: 'النقر مسموح (تسهيلات الاستخدام)', screen: 'لقطات الشاشة مسموحة (تسجيل الشاشة)', window: 'تطبيق iPhone Mirroring مفتوح', board: 'سودوكو ظاهر على الشاشة'},
+    screen_kind: {game: 'لغز على الشاشة', complete: 'شاشة النتيجة', sheet: 'قائمة المستويات', home: 'الشاشة الرئيسية', popup: 'نافذة منبثقة', other: 'غير معروفة'},
+    fix_settings: 'فتح الإعدادات', fix_mirroring: 'فتح iPhone Mirroring',
+    fix_hint: 'فعّل التطبيق الذي شغّل الاستوديو (عادةً Terminal)، ثم أغلقه وافتحه من جديد.',
+    all_ready: 'كل شيء جاهز.', not_ready: 'عدد الأمور التي تحتاج إصلاحًا: {n}', not_ready_one: 'أمر واحد يحتاج إصلاحًا.',
+    ways_title: 'طريقتان للاستخدام',
+    way_play: 'اللعب: يُنهي البوت الألغاز بسرعة. مناسب لاختبار اللعبة.',
+    way_learn: 'التعلّم: يعرض المدرب كل خطوة وسبب نجاحها، وأنت تتحكم بالسرعة عبر التالي.',
+    lib_title: 'مكتبة الطرق', lib_sub: 'اختر طريقة لتراها على لوحة حقيقية، مرحلة بمرحلة.', lib_from: 'مثال من لغز حقيقي',
+    trouble_title: 'إذا حدثت مشكلة',
+    troubles: [['النقرات لا تُسجَّل', 'اختر سرعة النقر الآمنة ولا تحرّك الفأرة أثناء نقر البوت.'],
+               ['اللوحة لا تُقرأ', 'اجعل نافذة iPhone Mirroring ظاهرة بالكامل ولا تغيّر حجمها أثناء اللعب.'],
+               ['يتوقف عند نافذة منبثقة', 'أغلقها على الهاتف، أو اسمح بالنوافذ ذات الزر الواحد في اللعب.'],
+               ['تظهر «أصعب من دروس المدرب»', 'هذه الخطوة تحتاج منطقًا لا يشرحه المدرب بعد، فيكشف رقمًا واحدًا مؤكدًا لتتابع.']],
+    open_play_log: 'فتح سجل اللعب', open_learn_log: 'فتح سجل التعلّم',
+    doc_title: 'مدرب سودوكو', mode_watch: 'شاهد وتعلّم', help: 'مساعدة', lang: 'English', lang_name: 'التبديل إلى الإنجليزية',
+    stages: ['أين', 'ماذا', 'لماذا', 'الحل'], stage_go: 'عرض مرحلة: {s}', idea: 'الفكرة', level: 'المستوى {n}',
+    progress: '{f} من {t} خانة', step_no: 'الخطوة {n}',
+    controls: 'أزرار الدرس', prev: 'الخطوة السابقة', play: 'تشغيل', pause: 'إيقاف مؤقت', cont: 'متابعة',
+    review: 'خطوة سابقة: {n} من {t}', live: 'العودة إلى الخطوة الحالية',
+    your_turn: 'دورك', your_turn_text: 'اعثر على الرقم وضعه على الهاتف.', show_answer: 'إظهار الحل',
+    legend: { sources: 'أرقام تمنع', pattern: 'خانات مهمة', elim: 'محذوف', place: 'الحل' },
+    removed: 'عدد الاحتمالات المحذوفة: {n}', removed_one: 'تم حذف احتمال واحد.',
+    settings: 'الإعدادات', speed: 'السرعة', slow: 'بطيء', normal: 'عادي', fast: 'سريع',
+    placer: 'من يضع الأرقام', coach: 'المدرب', me: 'أنا', cands: 'كل الاحتمالات على اللوحة',
+    quick: 'تسريع الخطوات السهلة التي أعرفها', numerals: 'الأرقام الهندية (٣٤٥)', on: 'تشغيل', off: 'إيقاف',
+    path: 'الطرق', path_sum: 'شاهدت {n} من {t}',
+    tiers: ['', 'الأساسيات: المسح', 'الحصر والأزواج', 'الأنماط', 'متقدم'],
+    help_title: 'كيف يعمل المدرب',
+    help_steps: 'كل خطوة تأتي على أربع مراحل: أين تنظر، وماذا يهم، ولماذا تنجح، ثم الحل.',
+    help_colors: 'الألوان على اللوحة',
+    help_keys: 'المفاتيح (أثناء التعلّم، انقر على هذه النافذة أولًا)', keys: [['مسافة أو ←', 'التالي'], ['→', 'الخطوة السابقة'], ['A', 'إظهار الحل'], ['P', 'تشغيل التقدّم التلقائي أو إيقافه'], ['L', 'تغيير اللغة']],
+    help_boxes: 'المربعات مرقّمة من 1 إلى 9 بدءًا من أعلى اليسار، صفًا بعد صف، كما على الهاتف.',
+    help_modes: 'المدرب: يضع الأرقام على الهاتف بدلًا منك. أنا: تضع كل رقم بنفسك، واضغط إظهار الحل إذا احتجت.',
+    loading: 'جارٍ قراءة اللوحة',
+    empty_nogame_title: 'افتح لغزًا على هاتفك',
+    empty_nogame: ['افتح iPhone Mirroring وافتح قفل الهاتف', 'افتح لغز سودوكو', 'يبدأ المدرب فور رؤية اللوحة'],
+    empty_finished_title: 'هذا اللغز منتهٍ', empty_finished: 'ابدأ لغزًا جديدًا وسيشرحه المدرب من أول خطوة.',
+    new_puzzle: 'بدء لغز جديد',
+    error_title: 'توقف المدرب', retry: 'إعادة المحاولة', open_log: 'فتح السجل', details: 'التفاصيل',
+    errors: { no_window: 'تطبيق iPhone Mirroring غير مفتوح. افتحه وافتح قفل الهاتف ثم أعد المحاولة.',
+              permission: 'منع macOS لقطات الشاشة أو النقرات. اسمح لتطبيق Terminal في الخصوصية والأمان ثم أعد المحاولة.',
+              stuck: 'لم يستجب الهاتف لنقرات المدرب. تحقق من شاشة الهاتف ثم أعد المحاولة.',
+              popup: 'هناك نافذة منبثقة على الهاتف تحتاجك. أغلقها على الهاتف ثم أعد المحاولة.',
+              other: 'حدث شيء غير متوقع. أعد المحاولة أو أرسل السجل.' },
+    solved: 'تم حل اللغز', steps: 'الخطوات', time: 'الوقت', hardest: 'أصعب خطوة', used_title: 'الطرق في هذا اللغز',
+    close: 'إغلاق المدرب',
+    status: {
+      reading: 'جارٍ قراءة اللوحة', waiting: 'بانتظار شاشة اللعبة', new_game: 'جارٍ فتح لغز جديد',
+      placing: 'جارٍ وضع {d} في الخانة {cell}. لا تحرّك الفأرة للحظة.',
+      mouse_paused: 'متوقف مؤقتًا لأنك تستخدم الفأرة. اتركها ثابتة 3 ثوانٍ للمتابعة.',
+      paused: 'متوقف مؤقتًا. اضغط متابعة للتقدم مرحلة بمرحلة.',
+      your_turn_shown: 'ضع {d} في الخانة {cell} على الهاتف.', not_that: 'ليس تمامًا: الخانة {cell} تحتاج {d}.',
+      correct: 'صحيح: {d} في الخانة {cell}.', solved_wait: 'تم الحل. بانتظار شاشة النتيجة', check_phone: 'تحقق من الهاتف'
+    }
+  },
+  units: { row: 'الصف {i}', col: 'العمود {i}', box: 'المربع {i}',
+           rows2: 'الصفين {l}', cols2: 'العمودين {l}', boxs2: 'المربعين {l}',
+           rows: 'الصفوف {l}', cols: 'الأعمدة {l}', boxs: 'المربعات {l}' },
+  and: ' و', or: ' أو ', cell: '(الصف\u00a0{r}،\u00a0العمود\u00a0{c})',
+  tech: {
+    mistake: { name: 'رقم خاطئ', short: 'رقم يكسر اللغز',
+      concept: 'صحّح الأرقام الخاطئة أولًا، لأن كل خطوة تُبنى على رقم خاطئ ستكون خاطئة أيضًا.',
+      where: 'تحقق من الخانة {cell}.',
+      why: 'الرقم {d} في الخانة {cell} لا يتوافق مع الحل الوحيد للغز.',
+      why_clash: 'الرقم {d} في الخانة {cell} يتعارض مع {d} آخر في الصف أو العمود أو المربع نفسه.',
+      answer: 'الرقم الصحيح هو {right}.' },
+    full_house: { name: 'الخانة الأخيرة', short: 'آخر خانة فارغة في مجموعة',
+      concept: 'عندما يحتوي صف أو عمود أو مربع على ثمانية أرقام، فالرقم التاسع هو الرقم الناقص. ابدأ دائمًا بهذا الفحص، فهو أسهل خطوة على الإطلاق.',
+      where: '{unit} شبه مكتمل.',
+      why: 'في {unit} ثمانية أرقام، والرقم الوحيد الناقص هو {d}.',
+      answer: 'ضع {d} في الخانة {cell}.' },
+    hidden_single: { name: 'المفرد المخفي', short: 'مكان واحد فقط متاح لرقم',
+      concept: 'اختر رقمًا ومربعًا (أو صفًا أو عمودًا). كل نسخة من هذا الرقم في مكان آخر تمنع صفها وعمودها بالكامل. إذا بقيت خانة فارغة واحدة غير ممنوعة، فالرقم يجب أن يكون فيها، حتى لو كانت تقبل أرقامًا أخرى.',
+      where: 'انظر إلى {unit}. أين يمكن أن يوضع الرقم {d}؟',
+      why: 'كل رقم {d} قريب يمنع صفه وعموده (الأشعة). كل الخانات الفارغة في {unit} ممنوعة إلا خانة واحدة.',
+      why_earlier: 'عدد الخانات التي استُبعدت في خطوات سابقة: {earlier}.',
+      answer: 'الرقم {d} يجب أن يكون في الخانة {cell}.' },
+    naked_single: { name: 'المفرد الظاهر', short: 'رقم واحد فقط يناسب الخانة',
+      concept: 'انظر إلى خانة واحدة واجمع الأرقام الموجودة في صفها وعمودها ومربعها. إذا وجدت ثمانية أرقام مختلفة، فالخانة تأخذ الرقم التاسع.',
+      where: 'انظر إلى الخانة {cell}.',
+      why: 'صفها وعمودها ومربعها تحتوي بالفعل على {seen}.',
+      why_earlier: 'كما استُبعد {earlier} في خطوة سابقة.',
+      answer: 'لم يبقَ إلا {d}، إذن الخانة {cell} = {d}.' },
+    pointing: { name: 'التأشير', short: 'رقم محصور في خط واحد داخل مربع',
+      concept: 'إذا كان رقم ما داخل مربع لا يمكن أن يوضع إلا في خانات تقع على صف واحد (أو عمود واحد)، فنسخة هذا الخط من الرقم موجودة داخل هذا المربع، ولا يمكن أن تكون في بقية الخط.',
+      where: 'انظر إلى احتمالات الرقم {d} في {box}.',
+      why: 'في {box}، الرقم {d} لا يمكن أن يكون إلا في الخانات البنفسجية، وكلها تقع في {line}. إذن الرقم {d} الخاص بـ{line} موجود داخل {box}.',
+      answer: 'احذف {d} من بقية {line} (باللون الأحمر).' },
+    claiming: { name: 'الحصر في المربع', short: 'خط يحصر رقمًا داخل مربع واحد',
+      concept: 'إذا كان رقم ما في صف (أو عمود) لا يمكن أن يوضع إلا في خانات داخل مربع واحد، فهذا المربع يجب أن يضع نسخته من الرقم على هذا الخط. احذفه من بقية خانات المربع.',
+      where: 'انظر إلى احتمالات الرقم {d} في {line}.',
+      why: 'في {line}، الرقم {d} لا يمكن أن يكون إلا في الخانات البنفسجية، وكلها داخل {box}. إذن {box} يجب أن يضع الرقم {d} على {line}.',
+      answer: 'احذف {d} من باقي خانات {box} (باللون الأحمر).' },
+    naked_pair: { name: 'الزوج الظاهر', short: 'خانتان تتقاسمان الرقمين نفسيهما',
+      concept: 'خانتان في الصف أو العمود أو المربع نفسه لا تقبلان إلا الرقمين نفسيهما. هذان الرقمان محجوزان لهاتين الخانتين، فلا يمكن أن يظهرا في أي خانة أخرى من المجموعة.',
+      where: 'انظر إلى الخانات البنفسجية في {unit}.',
+      why: 'هذه الخانات لا تقبل مجتمعةً إلا {digits}. عدد الخانات يساوي عدد الأرقام، إذن ستأخذها كلها.',
+      answer: 'احذف {digits} من باقي خانات {unit} (باللون الأحمر).' },
+    naked_triple: { name: 'الثلاثي الظاهر', short: 'ثلاث خانات تتقاسم ثلاثة أرقام',
+      concept: 'ثلاث خانات في مجموعة واحدة لا تقبل مجتمعةً إلا ثلاثة أرقام. هذه الأرقام محجوزة لها، فاحذفها من باقي المجموعة.',
+      where: 'انظر إلى الخانات البنفسجية في {unit}.',
+      why: 'هذه الخانات لا تقبل مجتمعةً إلا {digits}. عدد الخانات يساوي عدد الأرقام، إذن ستأخذها كلها.',
+      answer: 'احذف {digits} من باقي خانات {unit} (باللون الأحمر).' },
+    hidden_pair: { name: 'الزوج المخفي', short: 'رقمان لا مكان لهما إلا خانتان',
+      concept: 'رقمان لا يمكن أن يوضعا في مجموعة ما إلا في الخانتين نفسيهما. هاتان الخانتان يجب أن تحملا هذين الرقمين، فيمكن حذف أي احتمالات أخرى فيهما.',
+      where: 'ابحث عن {digits} في {unit}.',
+      why: 'في {unit}، الأرقام {digits} لا يمكن أن توضع إلا في الخانات البنفسجية. عدد الأرقام يساوي عدد الخانات، إذن هذه الخانات محجوزة لها.',
+      answer: 'احذف الاحتمالات الأخرى من الخانات البنفسجية (باللون الأحمر).' },
+    hidden_triple: { name: 'الثلاثي المخفي', short: 'ثلاثة أرقام لا مكان لها إلا ثلاث خانات',
+      concept: 'ثلاثة أرقام لا يمكن أن توضع في مجموعة ما إلا في ثلاث خانات بعينها. هذه الخانات محجوزة لها، فاحذف منها أي احتمالات أخرى.',
+      where: 'ابحث عن {digits} في {unit}.',
+      why: 'في {unit}، الأرقام {digits} لا يمكن أن توضع إلا في الخانات البنفسجية. عدد الأرقام يساوي عدد الخانات، إذن هذه الخانات محجوزة لها.',
+      answer: 'احذف الاحتمالات الأخرى من الخانات البنفسجية (باللون الأحمر).' },
+    x_wing: { name: 'جناح X', short: 'خطان وخطان متقاطعان ورقم واحد',
+      concept: 'رقم له مكانان فقط في كل من صفين، وهذه الأماكن تقع في العمودين نفسيهما. يجب أن يكون الرقم في زاويتين متقابلتين من المستطيل، إذن العمودان يأخذان نسختيهما من هذه الخانات. احذفه من بقية العمودين. والفكرة نفسها تعمل عند تبديل الصفوف والأعمدة.',
+      where: 'انظر إلى احتمالات الرقم {d} في {base}.',
+      why: 'في {base}، الرقم {d} لا يمكن أن يكون إلا في الخانات البنفسجية، وهي تقع في {cover}. مهما كان التوزيع، فإن الرقم {d} في {cover} سيأتي من هذه الخانات.',
+      answer: 'احذف {d} من بقية {cover} (باللون الأحمر).' },
+    swordfish: { name: 'سمكة السيف', short: 'جناح X بثلاثة خطوط',
+      concept: 'في ثلاثة صفوف، رقم ما لا يظهر إلا في الأعمدة الثلاثة نفسها. هذه الأعمدة تأخذ كل نسخها من هذه الخانات، فاحذف الرقم من بقيتها. ويمكن تبديل الصفوف والأعمدة.',
+      where: 'انظر إلى احتمالات الرقم {d} في {base}.',
+      why: 'في {base}، الرقم {d} لا يمكن أن يكون إلا في الخانات البنفسجية، وكلها في {cover}. إذن الرقم {d} في {cover} سيأتي من هذه الخانات.',
+      answer: 'احذف {d} من بقية {cover} (باللون الأحمر).' },
+    skyscraper: { name: 'ناطحة السحاب', short: 'خطان يلتقيان عند القاعدة',
+      concept: 'خطان في كل منهما مكانان فقط لرقم ما، ومكان من كل خط يقع على استقامة الآخر (القاعدة). لا يمكن أن يكون الرقم في طرفي القاعدة معًا، إذن أحد الطرفين العلويين على الأقل يحمله. أي خانة ترى الطرفين العلويين معًا لا يمكن أن تحمل هذا الرقم.',
+      where: 'انظر إلى احتمالات الرقم {d} في {lines}.',
+      why: 'كل خط فيه مكانان فقط للرقم {d}. طرفا القاعدة على استقامة واحدة، فلا يمكن أن يكونا {d} معًا، إذن أحد الطرفين ({ends}) هو {d}.',
+      answer: 'احذف {d} من الخانات التي ترى الطرفين معًا (باللون الأحمر).' },
+    kite: { name: 'الطائرة الورقية', short: 'صف وعمود يلتقيان في مربع',
+      concept: 'صف وعمود في كل منهما مكانان فقط لرقم ما، ومكان من كل منهما يقع في المربع نفسه. لا يمكن أن يحملا الرقم معًا، إذن أحد الطرفين البعيدين على الأقل يحمله. احذف الرقم من أي خانة ترى الطرفين البعيدين معًا.',
+      where: 'انظر إلى احتمالات الرقم {d} في {row} و{col}.',
+      why: 'في كل من {row} و{col} مكانان فقط للرقم {d}. المكانان داخل {box} لا يمكن أن يكونا {d} معًا، إذن أحد الطرفين البعيدين ({ends}) هو {d}.',
+      answer: 'احذف {d} من الخانات التي ترى الطرفين معًا (باللون الأحمر).' },
+    xy_wing: { name: 'جناح XY', short: 'ثلاث خانات بخيارين لكل منها',
+      concept: 'خانة محورية فيها خياران A وB، وترى خانتين جانبيتين فيهما A/C وB/C. إذا كان المحور A فإحدى الجانبيتين تصبح C، وإذا كان B فالأخرى. في الحالتين إحداهما C، إذن أي خانة ترى الجانبيتين معًا لا يمكن أن تكون C.',
+      where: 'انظر إلى الخانة {pivot} والخانتين الجانبيتين.',
+      why: 'الخانة {pivot} إما {ab|or}. مهما كانت، إحدى الخانتين الجانبيتين ({w1} أو {w2}) ستصبح {z}.',
+      answer: 'احذف {z} من الخانات التي ترى الجانبيتين معًا (باللون الأحمر).' },
+    reveal: { name: 'أصعب من دروس المدرب', short: 'تحتاج سلسلة استنتاج طويلة',
+      concept: 'هذه الخانة تحتاج سلسلة استنتاج طويلة لا يشرحها المدرب بعد. تحقق المدرب من الحل الكامل لتتمكن من المتابعة.',
+      where: 'هذه الخطوة أصعب من طرق المدرب.',
+      why: 'الخانة {cell} تقبل {options|or}. تجربة كل الاحتمالات تُظهر أن واحدًا فقط يصلح.',
+      answer: 'الخانة {cell} = {d}.' }
+  }
+}
+};
+
+// ---------------------------------------------------------------- formatting
+window.T = (function () {
+  const EAST = '٠١٢٣٤٥٦٧٨٩';
+  let lang = 'en', eastern = false;
+  function num(s) { s = String(s); return lang === 'ar' && eastern ? s.replace(/\d/g, d => EAST[d]) : s; }
+  function L() { return I18N[lang]; }
+  function join(items, word) {
+    if (items.length <= 1) return items.join('');
+    return items.slice(0, -1).join(lang === 'ar' ? '، ' : ', ').replace(/، $/, '') + word + items[items.length - 1];
+  }
+  function cell(v) { return L().cell.replace('{r}', v[0]).replace('{c}', v[1]); }
+  function unit(v) { return L().units[v.k].replace('{i}', v.i); }
+  function units(list) {
+    if (!list.length) return '';
+    const k = list[0].k, nums = list.map(u => String(u.i));
+    if (list.length === 1) return unit(list[0]);
+    const key = (lang === 'ar' && list.length === 2 && L().units[k + 's2']) ? k + 's2' : k + 's';
+    return L().units[key].replace('{l}', join(nums, L().and));
+  }
+  function val(v, filter) {
+    if (Array.isArray(v)) {
+      if (v.length && Array.isArray(v[0])) return join(v.map(cell), L().and);
+      if (v.length === 2 && typeof v[0] === 'number' && filter === 'cell') return cell(v);
+      if (v.length && typeof v[0] === 'object') return units(v);
+      return join(v.map(String), filter === 'or' ? L().or : L().and);
+    }
+    if (v && typeof v === 'object') return unit(v);
+    return String(v);
+  }
+  const CELLKEYS = ['cell', 'pivot', 'w1', 'w2'];
+  function fmt(tpl, p) {
+    return num(tpl.replace(/\{(\w+)(?:\|(\w+))?\}/g, (m, key, filter) => {
+      const k = key.toLowerCase(), cap = key[0] !== k[0];
+      if (!(k in p)) return m;
+      let s = CELLKEYS.includes(k) ? cell(p[k]) : val(p[k], filter);
+      if (cap && lang === 'en') s = s[0].toUpperCase() + s.slice(1);
+      return s;
+    }));
+  }
+  function ui(key, p) {
+    const v = key.split('.').reduce((o, k) => o && o[k], L().ui);
+    return typeof v === 'string' ? fmt(v, p || {}) : v;
+  }
+  function tech(name) { return L().tech[name]; }
+  function stepText(step) {
+    const t = tech(step.tech), p = step.p;
+    const why = (step.tech === 'mistake' && p.clash) ? t.why_clash : t.why;
+    let w = fmt(why, p);
+    const e = p.earlier;
+    if (t.why_earlier && e && (!Array.isArray(e) || e.length)) w += ' ' + fmt(t.why_earlier, p);
+    return { name: t.name, short: t.short, concept: num(t.concept), where: fmt(t.where, p), why: w, answer: fmt(t.answer, p) };
+  }
+  return {
+    set(l, e) { lang = l; eastern = !!e; }, get lang() { return lang; },
+    fmt, ui, tech, stepText, num, cell, unit, units
+  };
+})();

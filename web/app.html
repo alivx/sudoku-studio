@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Sudoku Studio</title>
+<script>window.onerror = (m, src, line) => { try { window.webkit.messageHandlers.coach.postMessage({cmd: 'js_error', msg: 'app: ' + m + ' @' + line}); } catch (e) {} };</script>
+<style>
+:root{--bg:#FBFAF7;--card:#fff;--text:#1f1e1c;--muted:#5f5e5a;--line:rgba(0,0,0,.1);--line2:rgba(0,0,0,.18);
+--accent:#534AB7;--accentBg:#EEEDFE;--accentText:#3C3489;
+--info:#0C447C;--infoBg:#E6F1FB;--ok:#27500A;--okBg:#EAF3DE;--warn:#633806;--warnBg:#FAEEDA;--err:#791F1F;--errBg:#FCEBEB;--focus:#378ADD}
+@media (prefers-color-scheme: dark){:root{--bg:#1d1c1a;--card:#262522;--text:#f1efe8;--muted:#b4b2a9;--line:rgba(255,255,255,.12);--line2:rgba(255,255,255,.22);
+--accent:#AFA9EC;--accentBg:#3C3489;--accentText:#EEEDFE;
+--info:#B5D4F4;--infoBg:#0C447C;--ok:#C0DD97;--okBg:#27500A;--warn:#FAC775;--warnBg:#633806;--err:#F7C1C1;--errBg:#791F1F;--focus:#85B7EB}}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font:13px/1.55 -apple-system,"SF Pro Text","SF Arabic","Geeza Pro",sans-serif}
+[dir=rtl] body{font-size:14px}
+button,summary,input{font:inherit;color:var(--text)}
+button{background:var(--card);border:1px solid var(--line2);border-radius:8px;padding:6px 10px;cursor:pointer;min-height:30px}
+button:hover{border-color:var(--accent)}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+@media (prefers-color-scheme: dark){button.primary{color:#1d1c1a}}
+button.danger{color:var(--err)}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.hidden{display:none !important}
+/* frame */
+.tabs{display:flex;gap:2px}
+.tabs button{border:0;border-radius:0;background:none;padding:6px 12px 8px;min-height:0;color:var(--muted);border-bottom:2.5px solid transparent;font-weight:600;position:relative}
+.tabs button[aria-selected=true]{color:var(--accent);border-bottom-color:var(--accent)}
+.tabs .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#639922;margin-inline-start:6px;vertical-align:1px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 13px;margin-bottom:10px}
+h2{font-size:15px;font-weight:600;margin:0 0 4px;line-height:1.45}
+h3{font-size:12.5px;margin:0 0 6px}
+.sub{color:var(--muted);margin:0 0 10px;font-size:12.5px}
+.notice{border-radius:9px;padding:7px 10px;margin-bottom:10px;font-size:12.5px;display:flex;gap:8px}
+.notice.info{background:var(--infoBg);color:var(--info)}.notice.success{background:var(--okBg);color:var(--ok)}
+.notice.warning{background:var(--warnBg);color:var(--warn)}.notice.error{background:var(--errBg);color:var(--err)}
+.notice:empty{display:none}
+/* form rows */
+.field{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.field:first-of-type{border-top:0}
+.field .lab{display:flex;flex-direction:column}
+.field .hint{font-size:11.5px;color:var(--muted)}
+.seg{display:inline-flex;border:1px solid var(--line2);border-radius:8px;overflow:hidden;flex:none;flex-wrap:nowrap}
+.seg button{border:0;border-radius:0;padding:3px 9px;min-height:28px;background:transparent;font-size:12px}
+.seg button[aria-pressed=true]{background:var(--accentBg);color:var(--accentText);font-weight:600}
+select{font:inherit;padding:4px 6px;border-radius:7px;border:1px solid var(--line2);background:var(--card);color:var(--text);max-width:170px}
+.stepper{display:inline-flex;align-items:center;border:1px solid var(--line2);border-radius:8px;overflow:hidden}
+.stepper button{border:0;border-radius:0;min-height:28px;width:30px;padding:0}
+.stepper input{width:44px;text-align:center;border:0;border-inline:1px solid var(--line2);background:var(--card);height:28px}
+.switch{position:relative;width:38px;height:22px;border-radius:11px;border:0;padding:0;min-height:0;background:var(--line2);flex:none}
+.switch::after{content:"";position:absolute;top:3px;inset-inline-start:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:inset-inline-start .2s}
+.switch[aria-checked=true]{background:var(--accent)}
+.switch[aria-checked=true]::after{inset-inline-start:19px}
+.row{display:flex;gap:6px;margin-top:10px}.grow{flex:1}
+/* play */
+.runhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.pill{font-size:11.5px;font-weight:600;border-radius:20px;padding:2px 9px}
+.pill.running{background:var(--okBg);color:var(--ok)}.pill.paused,.pill.stopping{background:var(--warnBg);color:var(--warn)}
+.pill.stopped{background:var(--errBg);color:var(--err)}.pill.done,.pill.idle{background:var(--accentBg);color:var(--accentText)}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden;margin:6px 0}
+.bar i{display:block;height:100%;background:var(--accent);transition:width .4s}
+.meta{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted)}
+.act{font:11px/1.4 ui-monospace,Menlo,monospace;color:var(--muted);margin-top:6px;word-break:break-word}
+.results{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.results span{font-size:11.5px;border:1px solid var(--line2);border-radius:6px;padding:1px 6px}
+/* learn (lesson) */
+.status{display:flex;gap:8px;border-radius:9px;padding:7px 10px;margin-bottom:8px;font-size:12.5px}
+.status:empty{display:none}
+.status.info{background:var(--infoBg);color:var(--info)}.status.success{background:var(--okBg);color:var(--ok)}
+.status.warning{background:var(--warnBg);color:var(--warn)}.status.error{background:var(--errBg);color:var(--err)}
+.review{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--warnBg);color:var(--warn);border-radius:8px;padding:5px 8px;margin-bottom:9px;font-size:12px}
+.review button{min-height:26px;padding:3px 8px;font-size:12px}
+.chiprow{display:flex;align-items:center;gap:8px}
+.chip{background:var(--accentBg);color:var(--accentText);border-radius:7px;padding:2px 9px;font-size:12.5px;font-weight:600;white-space:nowrap}
+.lvl{font-size:11.5px;color:var(--muted);white-space:nowrap}
+.short{font-size:12px;color:var(--muted);margin-top:4px}
+.stages{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:10px 0 2px;padding:0;list-style:none}
+.stages button{width:100%;border:0;background:none;padding:0 0 2px;min-height:0;font-size:11.5px;color:var(--muted);border-radius:4px}
+.stages button::before{content:"";display:block;height:4px;border-radius:2px;background:var(--line);margin-bottom:4px}
+.stages button.done{color:var(--text)}
+.stages button.done::before{background:var(--accentBg);box-shadow:inset 0 0 0 1px var(--accent)}
+.stages button[aria-current]{color:var(--accent);font-weight:700}
+.stages button[aria-current]::before{background:var(--accent)}
+.lesson h2{margin-top:8px}
+.why{margin:4px 0}.ans{margin:6px 0 0;font-weight:600;color:var(--accent)}
+.legend{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:8px;font-size:11.5px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.sw{width:11px;height:11px;border-radius:3px;display:inline-block;flex:none}
+.sw.sources{border-radius:50%;background:rgba(216,90,48,.25);border:2px solid #D85A30}
+.sw.pattern{background:rgba(127,119,221,.25);border:2px solid #534AB7}
+.sw.elim{background:rgba(226,75,74,.15);border:1.5px solid #E24B4A}
+.sw.place{background:#EEEDFE;border:2px solid #534AB7}
+details{border-radius:9px}
+details summary{cursor:pointer;font-weight:600}
+details.idea{background:var(--accentBg);color:var(--accentText);padding:7px 10px;margin-top:9px;font-size:12.5px}
+details.idea p{margin:4px 0 0}
+.turn{border:1.5px dashed var(--accent);border-radius:9px;padding:8px 10px;margin-top:9px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.turn b{display:block}.turn span{font-size:12px;color:var(--muted)}.turn button{white-space:nowrap}
+.skel{background:var(--line);border-radius:6px;height:12px;margin:8px 0;animation:sk 1.2s ease-in-out infinite}
+@keyframes sk{50%{opacity:.45}}
+ol.steps{margin:6px 0 0;padding-inline-start:20px;color:var(--muted)}
+.err pre{white-space:pre-wrap;word-break:break-word;margin:4px 0 0;font:11px/1.4 ui-monospace,Menlo,monospace}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}
+.stats div{background:var(--bg);border-radius:8px;padding:6px 8px}
+.stats b{display:block;font-size:16px}.stats span{font-size:11.5px;color:var(--muted)}
+.hbar{display:flex;align-items:center;gap:6px;font-size:12px;margin:3px 0}
+.hbar .lbl{width:118px;flex:none}.hbar i{display:block;height:6px;border-radius:3px;background:var(--accent)}
+.ctrl{display:flex;gap:6px;margin:2px 0 10px}
+.ctrl .next{flex:1}
+.panelbox{background:var(--card);border:1px solid var(--line);padding:9px 12px;margin-bottom:8px}
+.panelbox .sumtxt{font-weight:400;color:var(--muted);margin-inline-start:6px}
+.tier{font-size:11.5px;color:var(--muted);margin:8px 0 3px;font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:4px;list-style:none;margin:0;padding:0}
+.chips li,.chips button{border:1px solid var(--line2);padding:1px 7px;border-radius:6px;font-size:12px;min-height:0;background:var(--card)}
+.chips button{min-height:26px;min-width:26px;padding:3px 8px}
+.chips .cur,.chips button[aria-pressed=true]{background:var(--accentBg);color:var(--accentText);border-color:var(--accent);font-weight:600}
+.chips li.seen::after{content:" ✓";color:var(--ok)}
+/* help */
+.checks{list-style:none;margin:0;padding:0}
+.checks li{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px solid var(--line)}
+.checks li:first-child{border-top:0}
+.checks .ic{width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex:none}
+.checks .ok .ic{background:var(--okBg);color:var(--ok)}.checks .bad .ic{background:var(--errBg);color:var(--err)}.checks .wait .ic{background:var(--line);color:var(--muted)}
+.checks .txt{flex:1;display:flex;flex-direction:column}.checks .txt small{color:var(--muted);font-size:11.5px}
+.checks button{font-size:12px;min-height:26px;padding:3px 8px;white-space:nowrap}
+.minib{width:100%;aspect-ratio:323/330;background:#fff;border-radius:8px;border:1px solid var(--line);display:block;margin-top:8px}
+.ways p{margin:4px 0}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;margin:0;font-size:12.5px}
+.kv dd{margin:0}
+kbd{font:11px ui-monospace,Menlo,monospace;border:1px solid var(--line2);border-bottom-width:2px;border-radius:4px;padding:0 5px;white-space:nowrap}
+.trouble dt{font-weight:600}.trouble dd{margin:0 0 6px;color:var(--muted)}
+
+/* ===== the book ===== */
+:root{--paper:#FBF7EE;--paper2:#F3ECDC;--leather:#5B3A29;--leather2:#7A4E36;--stitch:#E9D7B9;--edge:#E2D8C3;
+--t-play:#0F6E56;--t-playBg:#E1F5EE;--t-learn:#534AB7;--t-learnBg:#EEEDFE;--t-help:#854F0B;--t-helpBg:#FAEEDA}
+@media (prefers-color-scheme: dark){:root{--paper:#26231E;--paper2:#2E2A24;--leather:#3A251A;--leather2:#55372A;--stitch:#8C6E52;--edge:#4A443A;
+--t-playBg:#085041;--t-learnBg:#3C3489;--t-helpBg:#633806}}
+html,body{background:transparent;height:100%;overflow:hidden}
+.desk{position:fixed;inset:0;padding:10px 40px 16px 8px}
+[dir=rtl] .desk{padding:10px 8px 16px 40px}
+.book{position:relative;height:100%;filter:drop-shadow(0 8px 14px rgba(40,25,10,.28)) drop-shadow(0 1px 2px rgba(40,25,10,.25))}
+.spine{position:absolute;top:0;bottom:0;inset-inline-start:0;width:18px;border-radius:6px 0 0 6px;
+  background:linear-gradient(90deg,var(--leather) 0%,var(--leather2) 45%,var(--leather) 100%);z-index:3}
+[dir=rtl] .spine{border-radius:0 6px 6px 0}
+.spine::after{content:"";position:absolute;top:10px;bottom:10px;inset-inline-start:8px;border-inline-start:1.5px dashed var(--stitch);opacity:.7}
+.edges{position:absolute;top:6px;bottom:-5px;inset-inline-end:-5px;width:100%;border-radius:4px 12px 12px 4px;z-index:0;
+  background:repeating-linear-gradient(90deg,var(--edge) 0 1px,var(--paper2) 1px 3px)}
+[dir=rtl] .edges{border-radius:12px 4px 4px 12px;background:repeating-linear-gradient(270deg,var(--edge) 0 1px,var(--paper2) 1px 3px)}
+.page{position:absolute;inset:0;inset-inline-start:14px;background:var(--paper);border-radius:2px 12px 12px 2px;z-index:2;
+  display:flex;flex-direction:column;overflow:hidden;transform-origin:left center}
+[dir=rtl] .page{border-radius:12px 2px 2px 12px;transform-origin:right center}
+.page::before{content:"";position:absolute;top:0;bottom:0;inset-inline-start:0;width:22px;pointer-events:none;
+  background:linear-gradient(90deg,rgba(60,40,20,.16),rgba(60,40,20,0))}
+[dir=rtl] .page::before{background:linear-gradient(270deg,rgba(60,40,20,.16),rgba(60,40,20,0))}
+.page.pageturn{animation:turn .5s cubic-bezier(.2,.7,.2,1)}
+[dir=rtl] .page.pageturn{animation-name:turnR}
+@keyframes turn{0%{transform:perspective(1400px) rotateY(-28deg);opacity:.35}100%{transform:none;opacity:1}}
+@keyframes turnR{0%{transform:perspective(1400px) rotateY(28deg);opacity:.35}100%{transform:none;opacity:1}}
+/* index tabs on the outer edge, like a dictionary */
+.thumbs{position:absolute;top:74px;inset-inline-end:-32px;z-index:1}
+.thumbs,.thumbs>div{display:flex;flex-direction:column;gap:6px}
+.thumbs button{writing-mode:vertical-rl;width:30px;min-height:84px;padding:10px 0;border-radius:0 9px 9px 0;border:1px solid var(--line);
+  border-inline-start:0;font-weight:700;font-size:12px;letter-spacing:.02em;color:var(--muted);background:var(--paper2);
+  transition:transform .2s,background .2s;transform:translateX(-4px)}
+[dir=rtl] .thumbs button{border-radius:9px 0 0 9px;transform:translateX(4px);letter-spacing:0}
+.thumbs button:hover{transform:none}
+.thumbs button[aria-selected=true]{transform:none;color:#fff}
+.thumbs .t0[aria-selected=true]{background:var(--t-play)}.thumbs .t1[aria-selected=true]{background:var(--t-learn)}.thumbs .t2[aria-selected=true]{background:var(--t-help)}
+.thumbs .t0{box-shadow:inset 3px 0 0 var(--t-play)}.thumbs .t1{box-shadow:inset 3px 0 0 var(--t-learn)}.thumbs .t2{box-shadow:inset 3px 0 0 var(--t-help)}
+[dir=rtl] .thumbs .t0{box-shadow:inset -3px 0 0 var(--t-play)}[dir=rtl] .thumbs .t1{box-shadow:inset -3px 0 0 var(--t-learn)}[dir=rtl] .thumbs .t2{box-shadow:inset -3px 0 0 var(--t-help)}
+.thumbs .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#97C459;margin-top:6px}
+/* ribbon bookmarks: show what is running even when you read another chapter */
+.ribbons{position:absolute;top:-4px;inset-inline-end:150px;display:flex;gap:6px;z-index:4;pointer-events:none}
+.ribbon{width:13px;height:46px;clip-path:polygon(0 0,100% 0,100% 100%,50% 78%,0 100%);animation:drop .5s ease-out}
+.ribbon.play{background:var(--t-play)}.ribbon.learn{background:var(--t-learn)}
+@keyframes drop{from{height:8px}to{height:46px}}
+/* page head and folio */
+header.appbar{position:relative;padding:12px 16px 8px 26px;background:transparent;border-bottom:1px solid var(--line);cursor:grab;user-select:none;-webkit-user-select:none}
+[dir=rtl] header.appbar{padding:12px 26px 8px 16px}
+header.appbar:active{cursor:grabbing}
+.brand{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.brand h1{font:600 17px/1.2 "Iowan Old Style","Charter",Georgia,serif;margin:0}
+[dir=rtl] .brand h1{font-family:"Al Nile","Geeza Pro",serif;font-size:18px}
+.chapter{font:italic 12.5px/1.4 "Iowan Old Style","Charter",Georgia,serif;color:var(--muted);margin-top:2px}
+[dir=rtl] .chapter{font-style:normal;font-family:"Al Nile","Geeza Pro",serif;font-size:13.5px}
+.chapter b{font-style:normal;font-weight:600;color:var(--text)}
+.acts{display:flex;gap:6px;align-items:center}
+.closeb{width:28px;min-height:28px;padding:0;border-radius:50%;font-size:15px;line-height:1;color:var(--muted)}
+main{flex:1;overflow-y:auto;padding:12px 16px 8px 26px}
+[dir=rtl] main{padding:12px 26px 8px 16px}
+.folio{text-align:center;font:12px "Iowan Old Style",Georgia,serif;color:var(--muted);padding:4px 0 8px;border-top:1px solid var(--line)}
+.card{background:color-mix(in srgb,var(--card) 70%,var(--paper))}
+@media (prefers-reduced-motion: reduce){.page.pageturn{animation:none}.ribbon{animation:none}.thumbs button{transition:none}}
+
+@media (prefers-reduced-motion: reduce){.skel{animation:none}.bar i{transition:none}.switch::after{transition:none}}
+</style></head>
+<body>
+<div class="desk"><div class="book" id="book">
+  <div class="edges" aria-hidden="true"></div>
+  <nav class="thumbs" id="thumbsNav"><div role="tablist" aria-orientation="vertical" id="tabs"></div></nav>
+  <div class="spine" aria-hidden="true"></div>
+  <div class="ribbons" id="ribbons"></div>
+  <div class="page" id="page">
+<header class="appbar" id="dragbar">
+  <div class="brand"><h1 id="appName"></h1>
+    <div class="acts"><button id="langBtn" onclick="send({cmd:'lang'})"></button><button class="closeb" id="closeApp" onclick="send({cmd:'quit'})">×</button></div></div>
+  <div class="chapter" id="chapter"></div>
+</header>
+
+<main id="pageBody">
+<!-- ======================= PLAY ======================= -->
+<section id="vPlay" role="tabpanel">
+  <div class="notice" id="playNotice" role="status" aria-live="polite"></div>
+  <div class="card" id="playRun">
+    <div class="runhead"><h2 id="playTitle"></h2><span class="pill" id="runPill"></span></div>
+    <p class="sub" id="playSub"></p>
+    <div id="runBox" class="hidden">
+      <div class="meta"><span id="gameOf"></span><span id="runTime"></span></div>
+      <div class="bar" role="progressbar" id="gameBar" aria-valuemin="0"><i id="gameFill" style="width:0"></i></div>
+      <div class="meta"><span id="cellsLeft"></span><span id="gameTime"></span></div>
+      <div class="act" dir="ltr" id="activity"></div>
+      <div id="resBox" class="hidden"><div class="tier" id="resTitle"></div><div class="results" id="results"></div><div class="meta" id="resStats" style="margin-top:4px"></div></div>
+    </div>
+    <div class="row" id="playBtns"></div>
+  </div>
+  <div class="card" id="playSettings">
+    <div class="field"><span class="lab" id="gamesL"></span>
+      <span class="stepper"><button id="gMinus">−</button><input id="gamesIn" inputmode="numeric" aria-labelledby="gamesL"><button id="gPlus">+</button></span></div>
+    <div class="field"><span class="lab" id="levelL"></span><select id="levelSel" aria-labelledby="levelL"></select></div>
+    <div class="field"><span class="lab"><span id="patL"></span><span class="hint" id="patHint"></span></span><select id="patSel" aria-labelledby="patL"></select></div>
+    <div class="field"><span class="lab"><span id="spdL"></span><span class="hint" id="spdNote"></span></span><span class="seg" id="spdSeg" role="group"></span></div>
+    <div class="field"><span class="lab"><span id="resL"></span><span class="hint" id="resHint"></span></span><button class="switch" role="switch" id="resSw" aria-labelledby="resL"></button></div>
+    <div class="field"><span class="lab"><span id="popL"></span><span class="hint" id="popHint"></span></span><button class="switch" role="switch" id="popSw" aria-labelledby="popL"></button></div>
+  </div>
+</section>
+
+<!-- ======================= LEARN ======================= -->
+<section id="vLearn" role="tabpanel" class="hidden">
+  <div class="notice" id="learnNotice" role="status" aria-live="polite"></div>
+  <!-- not running -->
+  <div class="card" id="learnStart">
+    <h2 id="lsTitle"></h2>
+    <p class="sub" id="lsSub"></p>
+    <div class="field"><span class="lab" id="lsPlacerL"></span><span class="seg" id="lsPlacer" role="group"></span></div>
+    <div class="field"><span class="lab"><span id="lsAutoL"></span><span class="hint" id="lsAutoH"></span></span><button class="switch" role="switch" id="lsAuto" aria-labelledby="lsAutoL"></button></div>
+    <div class="field"><span class="lab" id="lsLevelL"></span><select id="lsLevel" aria-labelledby="lsLevelL"></select></div>
+    <div class="row"><button class="primary grow" id="lsStart" onclick="send({cmd:'learn_start'})"></button></div>
+  </div>
+  <!-- running -->
+  <div id="learnRun" class="hidden">
+    <div id="lprog">
+      <div class="bar" role="progressbar" id="pbar" aria-valuemin="0"><i id="pfill" style="width:0"></i></div>
+      <div class="meta"><span id="pcells"></span><span id="pstep"></span><span id="ptime"></span></div>
+    </div>
+    <div class="status" id="status" role="status" aria-live="polite" dir="auto" style="margin-top:8px"></div>
+
+    <section class="card" id="lvLoading" aria-busy="true"><h2 class="sr" id="loadingT"></h2>
+      <div class="skel" style="width:40%"></div><div class="skel" style="width:90%;height:16px"></div><div class="skel" style="width:100%"></div><div class="skel" style="width:75%"></div></section>
+
+    <section class="card lesson hidden" id="lvLesson" aria-labelledby="where">
+      <div class="review hidden" id="review"><span id="reviewT"></span><button onclick="send({cmd:'live'})" id="liveBtn"></button></div>
+      <div class="chiprow"><span class="chip" id="tname"></span><span class="lvl" id="tlevel"></span></div>
+      <div class="short" id="tshort"></div>
+      <ol class="stages" id="stages"></ol>
+      <h2 id="where"></h2><p class="why" id="why"></p><p class="ans" id="ans"></p>
+      <div class="turn hidden" id="turn"><div><b id="turnT"></b><span id="turnX"></span></div><button class="primary" id="revealBtn" onclick="send({cmd:'reveal'})"></button></div>
+      <div class="legend" id="legend"></div>
+      <details class="idea" id="idea"><summary id="ideaT"></summary><p id="ideaX"></p></details>
+    </section>
+
+    <section class="card hidden" id="lvEmpty"><h2 id="emptyT"></h2><ol class="steps" id="emptyList"></ol><p id="emptyX" class="why"></p>
+      <div class="row"><button class="primary grow hidden" id="emptyBtn" onclick="send({cmd:'next_puzzle'})"></button></div></section>
+
+    <section class="card err hidden" id="lvError" role="alert"><h2 id="errT"></h2><p id="errX" class="why"></p>
+      <div class="row"><button class="primary grow" id="retryBtn" onclick="send({cmd:'retry'})"></button><button id="logBtn" onclick="send({cmd:'open_log',value:'learn'})"></button></div>
+      <details style="margin-top:8px"><summary id="errD"></summary><pre id="errRaw"></pre></details></section>
+
+    <section class="card hidden" id="lvSummary"><h2 id="sumTitle"></h2><div class="stats" id="stats"></div>
+      <div class="tier" id="usedTitle"></div><div id="bars"></div>
+      <div class="row"><button class="primary grow" id="nextPuzzle" onclick="send({cmd:'next_puzzle'})"></button></div></section>
+
+    <nav class="ctrl" id="ctrl">
+      <button id="prevBtn" onclick="send({cmd:'back'})"></button>
+      <button id="nextBtn" class="primary next" onclick="send({cmd:'next'})"></button>
+      <button id="autoBtn" aria-pressed="false" onclick="send({cmd:'play'})"></button>
+    </nav>
+
+    <details class="panelbox" id="lsettings"><summary id="setT"></summary>
+      <div class="field"><span class="lab" id="placerL"></span><span class="seg" id="placer" role="group"></span></div>
+      <div class="field"><span class="lab" id="speedL"></span><span class="seg" id="speed" role="group"></span></div>
+      <div class="field"><span class="lab" id="candsL"></span><button class="switch" role="switch" id="candsSw" aria-labelledby="candsL"></button></div>
+      <div class="field"><span class="lab" id="quickL"></span><button class="switch" role="switch" id="quickSw" aria-labelledby="quickL"></button></div>
+      <div class="field" id="numRow"><span class="lab" id="numL"></span><button class="switch" role="switch" id="numSw" aria-labelledby="numL"></button></div>
+    </details>
+    <details class="panelbox" id="path"><summary><span id="pathT"></span><span class="sumtxt" id="pathS"></span></summary><div id="tiers"></div></details>
+    <div class="row" style="justify-content:flex-end"><button class="danger" id="lsStop" onclick="send({cmd:'learn_stop'})"></button></div>
+  </div>
+</section>
+
+<!-- ======================= HELP ======================= -->
+<section id="vHelp" role="tabpanel" class="hidden">
+  <div class="card">
+    <div class="runhead"><h2 id="ckTitle"></h2><button id="ckAgain" onclick="send({cmd:'check'})"></button></div>
+    <p class="sub" id="ckSum" role="status" aria-live="polite"></p>
+    <ul class="checks" id="checks"></ul>
+  </div>
+  <div class="card ways"><h3 id="waysT"></h3><p id="wayPlay"></p><p id="wayLearn"></p><p id="helpSteps" class="sub" style="margin:6px 0 0"></p></div>
+  <div class="card" id="lib">
+    <h3 id="libT"></h3><p class="sub" id="libSub"></p>
+    <div id="libTiers"></div>
+    <div id="libView" class="hidden">
+      <svg class="minib" id="libSvg" viewBox="6 150 327 345" role="img" aria-labelledby="libWhere"></svg>
+      <ol class="stages" id="libStages"></ol>
+      <h2 id="libWhere" style="margin-top:6px"></h2><p class="why" id="libWhy"></p><p class="ans" id="libAns"></p>
+      <div class="legend" id="libLegend"></div>
+      <details class="idea" open><summary id="libIdeaT"></summary><p id="libIdea"></p></details>
+      <div class="row"><button id="libPrev" onclick="libGo(-1)"></button><button class="primary grow" id="libNext" onclick="libGo(1)"></button></div>
+      <p class="sub" id="libFrom" style="margin:6px 0 0;font-size:11.5px"></p>
+    </div>
+  </div>
+  <div class="card"><h3 id="colT"></h3><div class="legend" id="helpLegend" style="margin-top:0"></div><p class="sub" id="boxesT" style="margin:8px 0 0"></p></div>
+  <div class="card"><h3 id="keysT"></h3><dl class="kv" id="keys"></dl></div>
+  <div class="card trouble"><h3 id="trT"></h3><dl id="troubles" style="margin:0"></dl>
+    <div class="row"><button id="plogBtn" onclick="send({cmd:'open_log',value:'play'})"></button><button id="llogBtn" onclick="send({cmd:'open_log',value:'learn'})"></button></div></div>
+</section>
+</main>
+<div class="folio" id="folio" aria-hidden="true"></div>
+  </div>
+</div></div>
+
+<script src="i18n.js"></script>
+<script src="board.js"></script>
+<script src="examples.js"></script>
+<script>
+const ORDER = [[1, ['full_house', 'hidden_single', 'naked_single']], [2, ['pointing', 'claiming', 'naked_pair', 'hidden_pair']],
+  [3, ['naked_triple', 'hidden_triple', 'x_wing', 'skyscraper', 'kite', 'xy_wing']], [4, ['swordfish', 'reveal']]];
+const ALL = ORDER.flatMap(o => o[1]);
+const LEVELS = ['easy', 'medium', 'hard', 'expert', 'master', 'extreme'], PATTERNS = ['number', 'row', 'column', 'box', 'snake'];
+const DELAY = {safe: .12, fast: .07, turbo: .04};
+const VIEWS = ['play', 'learn', 'help'];
+const $ = id => document.getElementById(id);
+function send(msg) { try { window.webkit.messageHandlers.coach.postMessage(msg); } catch (e) { console.log('send', JSON.stringify(msg)); } }
+function txt(id, v) { $(id).textContent = v == null ? '' : v; }
+function show(id, on) { $(id).classList.toggle('hidden', !on); }
+function seg(id, label, opts, cur, onpick) {
+  const s = $(id); s.innerHTML = ''; s.setAttribute('aria-label', label);
+  opts.forEach(([v, l]) => { const b = document.createElement('button'); b.textContent = l; b.setAttribute('aria-pressed', String(v === cur));
+    b.onclick = () => onpick(v); s.appendChild(b); });
+}
+function sw(id, on, onclick) { const b = $(id); b.setAttribute('aria-checked', String(!!on)); b.onclick = onclick; }
+function options(id, values, labels, cur) {
+  const s = $(id); if (s.options.length !== values.length) { s.innerHTML = ''; values.forEach(v => { const o = document.createElement('option'); o.value = v; s.appendChild(o); }); }
+  values.forEach((v, i) => s.options[i].textContent = labels[v]); s.value = cur;
+}
+function clock(sec) { sec = Math.max(0, Math.round(sec || 0)); return T.num(Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0')); }
+function legend(id, kinds) { const l = $(id); l.innerHTML = '';
+  kinds.forEach(k => { const s = document.createElement('span'); s.innerHTML = '<i class="sw ' + k + '" aria-hidden="true"></i><span></span>';
+    s.lastChild.textContent = T.ui('legend')[k]; l.appendChild(s); }); }
+['lsettings', 'path'].forEach(id => { try { if (localStorage.getItem('open_' + id) === '1') $(id).open = true; } catch (e) {}
+  $(id).addEventListener('toggle', () => { try { localStorage.setItem('open_' + id, $(id).open ? '1' : '0'); } catch (e) {} }); });
+
+let lastView = null;
+let S = {view: 'play', lang: 'en', play: {cfg: {}, run: {state: 'idle'}}, learn: {}, learning: false, check: null};
+function update(state) {
+  for (const k in state) S[k] = state[k];
+  const ar = S.lang === 'ar';
+  T.set(S.lang, S.eastern);
+  document.documentElement.dir = ar ? 'rtl' : 'ltr'; document.documentElement.lang = S.lang;
+  document.title = T.ui('app');
+  txt('appName', T.ui('app'));
+  txt('langBtn', T.ui('lang')); $('langBtn').setAttribute('aria-label', T.ui('lang_name')); $('langBtn').setAttribute('lang', ar ? 'en' : 'ar');
+  const tabs = $('tabs'); tabs.innerHTML = '';
+  const playBusy = ['running', 'paused', 'stopping'].includes((S.play.run || {}).state);
+  VIEWS.forEach((v, i) => {
+    const b = document.createElement('button'); b.setAttribute('role', 'tab'); b.id = 'tab_' + v; b.className = 't' + i;
+    b.setAttribute('aria-selected', String(S.view === v)); b.setAttribute('aria-controls', 'v' + v[0].toUpperCase() + v.slice(1));
+    b.tabIndex = S.view === v ? 0 : -1; b.textContent = T.ui('tabs')[i];
+    const busy = (v === 'play' && playBusy) || (v === 'learn' && S.learning);
+    if (busy) { const d = document.createElement('span'); d.className = 'dot'; d.setAttribute('aria-label', T.ui('running')); b.appendChild(d); }
+    b.onclick = () => send({cmd: 'view', value: v});
+    b.onkeydown = e => { const k = {ArrowDown: 1, ArrowUp: -1, ArrowRight: 1, ArrowLeft: -1}[e.key];
+      if (k) { e.preventDefault(); const n = VIEWS[(i + k + 3) % 3]; send({cmd: 'view', value: n}); setTimeout(() => $('tab_' + n) && $('tab_' + n).focus(), 60); } };
+    tabs.appendChild(b);
+  });
+  const vi = VIEWS.indexOf(S.view);
+  $('chapter').innerHTML = '<span></span> · <b></b>';
+  $('chapter').children[0].textContent = T.ui('chapters')[vi]; $('chapter').children[1].textContent = T.ui('tabs')[vi];
+  const learnStep = S.learning && S.learn && S.learn.stepNo;
+  txt('folio', '— ' + (S.view === 'learn' && learnStep ? T.num(learnStep) : ['I', 'II', 'A'][vi]) + ' —');
+  const rb = $('ribbons'); rb.innerHTML = '';
+  if (playBusy) { const r = document.createElement('div'); r.className = 'ribbon play'; r.title = T.ui('marks_play'); rb.appendChild(r); }
+  if (S.learning) { const r = document.createElement('div'); r.className = 'ribbon learn'; r.title = T.ui('marks_learn'); rb.appendChild(r); }
+  $('closeApp').setAttribute('aria-label', T.ui('close_app')); $('closeApp').title = T.ui('close_app');
+  $('dragbar').title = T.ui('move_hint');
+  $('thumbsNav').setAttribute('aria-label', T.ui('chapters').join(', '));
+  if (lastView !== S.view) { if (lastView) { const pg = $('page'); pg.classList.remove('pageturn'); void pg.offsetWidth; pg.classList.add('pageturn'); $('pageBody').scrollTop = 0; } lastView = S.view; }
+  VIEWS.forEach(v => { const id = 'v' + v[0].toUpperCase() + v.slice(1); show(id, S.view === v); $(id).setAttribute('aria-labelledby', 'tab_' + v); });
+  if (S.view === 'play') drawPlay();
+  if (S.view === 'learn') drawLearn();
+  if (S.view === 'help') drawHelp();
+}
+
+/* ---------------- PLAY ---------------- */
+function drawPlay() {
+  const cfg = S.play.cfg || {}, run = S.play.run || {state: 'idle'};
+  const active = ['running', 'paused', 'stopping'].includes(run.state);
+  txt('playTitle', T.ui('play_title')); txt('playSub', T.ui('play_sub'));
+  const pill = $('runPill'); pill.className = 'pill ' + run.state; pill.textContent = T.ui('run')[run.state];
+  const n = S.play.notice; const pn = $('playNotice');
+  pn.className = 'notice' + (n ? ' ' + (n.tone || 'info') : ''); pn.textContent = n ? T.ui(n.key, n.p || {}) || n.text || '' : '';
+  show('runBox', run.state !== 'idle');
+  if (run.state !== 'idle') {
+    const g = Math.min((run.done || 0) + (active ? 1 : 0), run.total || 1);
+    txt('gameOf', T.ui('game_of', {n: g, t: run.total || 0})); txt('runTime', clock(run.elapsed));
+    const tot = run.cells || 0, left = run.left == null ? tot : run.left;
+    const pct = tot ? Math.round((tot - left) / tot * 100) : 0;
+    $('gameFill').style.width = (active ? pct : run.state === 'done' ? 100 : pct) + '%';
+    $('gameBar').setAttribute('aria-valuemax', 100); $('gameBar').setAttribute('aria-valuenow', pct); $('gameBar').setAttribute('aria-label', T.ui('game_of', {n: g, t: run.total || 0}));
+    txt('cellsLeft', active && run.left != null ? T.ui('cells_left', {n: run.left}) : ''); txt('gameTime', active ? clock(run.gameElapsed) : '');
+    txt('activity', run.activity || '');
+    const res = run.results || [];
+    show('resBox', res.length > 0);
+    if (res.length) {
+      txt('resTitle', T.ui('results'));
+      const r = $('results'); r.innerHTML = '';
+      res.forEach((t, i) => { const s = document.createElement('span'); s.textContent = T.ui('game_n', {n: i + 1}) + ' · ' + clock(t); r.appendChild(s); });
+      txt('resStats', T.ui('avg', {t: clock(res.reduce((a, b) => a + b, 0) / res.length)}) + '   ' + T.ui('best', {t: clock(Math.min(...res))}));
+    }
+  }
+  const btns = $('playBtns'); btns.innerHTML = '';
+  const mk = (label, cmd, cls) => { const b = document.createElement('button'); b.textContent = label; if (cls) b.className = cls; b.onclick = () => send({cmd}); btns.appendChild(b); return b; };
+  if (!active) mk('▶ ' + T.ui('start_play'), 'play_start', 'primary grow');
+  else { mk(run.state === 'paused' ? '▶ ' + T.ui('resume_play') : '❚❚ ' + T.ui('pause_play'), 'play_pause', 'grow'); mk('■ ' + T.ui('stop_play'), 'play_stop', 'danger'); }
+
+  const set = (key, value) => send({cmd: 'play_set', key, value});
+  txt('gamesL', T.ui('games'));
+  const gi = $('gamesIn'); if (document.activeElement !== gi) gi.value = T.num(cfg.games || 10);
+  gi.onchange = () => { const v = parseInt(gi.value.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)), 10); set('games', Math.max(1, Math.min(99, isNaN(v) ? 10 : v))); };
+  $('gMinus').onclick = () => set('games', Math.max(1, (cfg.games || 10) - 1)); $('gPlus').onclick = () => set('games', Math.min(99, (cfg.games || 10) + 1));
+  $('gMinus').setAttribute('aria-label', T.ui('games') + ' −1'); $('gPlus').setAttribute('aria-label', T.ui('games') + ' +1');
+  txt('levelL', T.ui('play_level')); options('levelSel', LEVELS, T.ui('levels'), cfg.level || 'extreme'); $('levelSel').onchange = e => set('level', e.target.value);
+  txt('patL', T.ui('pattern')); txt('patHint', T.ui('pattern_hint')[cfg.pattern || 'number']);
+  options('patSel', PATTERNS, T.ui('patterns'), cfg.pattern || 'number'); $('patSel').onchange = e => set('pattern', e.target.value);
+  const spd = cfg.speed || 'fast';
+  txt('spdL', T.ui('tap_speed')); txt('spdNote', T.ui('speed_note', {s: Math.round(5 + 58 * (.12 + 2 * DELAY[spd]))}));
+  seg('spdSeg', T.ui('tap_speed'), [['safe', T.ui('speeds').safe], ['fast', T.ui('speeds').fast], ['turbo', T.ui('speeds').turbo]], spd, v => set('speed', v));
+  txt('resL', T.ui('resume')); txt('resHint', T.ui('resume_hint')); sw('resSw', cfg.resume !== false, () => set('resume', cfg.resume === false));
+  txt('popL', T.ui('popups')); txt('popHint', T.ui('popups_hint')); sw('popSw', !!cfg.popups, () => set('popups', !cfg.popups));
+  // settings can't change mid-run: say so instead of silently ignoring
+  ['gamesIn', 'gMinus', 'gPlus', 'levelSel', 'patSel', 'resSw', 'popSw'].forEach(id => { $(id).disabled = active; });
+  $('spdSeg').querySelectorAll('button').forEach(b => b.disabled = active);
+}
+
+/* ---------------- LEARN ---------------- */
+const TONE = {reading: 'info', waiting: 'info', new_game: 'info', solved_wait: 'success', correct: 'success', placing: 'warning',
+  mouse_paused: 'warning', your_turn_shown: 'info', not_that: 'warning', check_phone: 'warning'};
+const ICON = {info: 'ⓘ', success: '✓', warning: '!', error: '✕'};
+let lastStepKey = null;
+function drawLearn() {
+  const L = S.learn || {}, ar = S.lang === 'ar', ln = S.learnPrefs || {};
+  const n = S.learnNotice, nb = $('learnNotice');
+  nb.className = 'notice' + (n ? ' ' + (n.tone || 'info') : ''); nb.textContent = n ? T.ui(n.key, n.p || {}) : '';
+  show('learnStart', !S.learning); show('learnRun', !!S.learning);
+  if (!S.learning) {
+    txt('lsTitle', T.ui('learn_title')); txt('lsSub', T.ui('learn_sub'));
+    txt('lsPlacerL', T.ui('placer'));
+    seg('lsPlacer', T.ui('placer'), [['coach', T.ui('coach')], ['me', T.ui('me')]], ln.placer || 'coach', v => send({cmd: 'learn_pref', key: 'placer', value: v}));
+    txt('lsAutoL', T.ui('auto')); txt('lsAutoH', T.ui('auto_hint'));
+    sw('lsAuto', !!ln.auto, () => send({cmd: 'learn_pref', key: 'auto', value: !ln.auto}));
+    txt('lsLevelL', T.ui('new_level')); options('lsLevel', LEVELS, T.ui('levels'), ln.level || 'extreme');
+    $('lsLevel').onchange = e => send({cmd: 'learn_pref', key: 'level', value: e.target.value});
+    txt('lsStart', T.ui('learn_start'));
+    return;
+  }
+  const p = L.progress;
+  show('lprog', !!(p && p.total));
+  if (p && p.total) {
+    $('pfill').style.width = Math.round(p.filled / p.total * 100) + '%';
+    $('pbar').setAttribute('aria-valuemax', p.total); $('pbar').setAttribute('aria-valuenow', p.filled);
+    $('pbar').setAttribute('aria-label', T.ui('progress', {f: p.filled, t: p.total}));
+    txt('pcells', T.ui('progress', {f: p.filled, t: p.total})); txt('pstep', L.stepNo ? T.ui('step_no', {n: L.stepNo}) : ''); txt('ptime', clock(p.elapsed));
+  }
+  const st = L.status, box = $('status');
+  if (st && st.key && T.ui('status.' + st.key) && L.view !== 'error') {
+    const tone = st.tone || TONE[st.key] || 'info'; box.className = 'status ' + tone;
+    box.innerHTML = '<b aria-hidden="true"></b><span></span>'; box.children[0].textContent = ICON[tone]; box.children[1].textContent = T.ui('status.' + st.key, st.p || {});
+  } else { box.className = 'status'; box.textContent = ''; }
+  const view = L.view || 'loading';
+  ['lvLoading', 'lvLesson', 'lvEmpty', 'lvError', 'lvSummary'].forEach(v => show(v, v === 'lv' + view[0].toUpperCase() + view.slice(1)));
+  txt('loadingT', T.ui('loading'));
+  show('ctrl', view === 'lesson');
+  if (view === 'lesson' && L.step) drawLesson(L);
+  if (view === 'empty') {
+    const fin = L.empty === 'finished'; txt('emptyT', T.ui(fin ? 'empty_finished_title' : 'empty_nogame_title'));
+    const ol = $('emptyList'); ol.innerHTML = ''; if (!fin) T.ui('empty_nogame').forEach(t => { const li = document.createElement('li'); li.textContent = t; ol.appendChild(li); });
+    txt('emptyX', fin ? T.ui('empty_finished') : ''); show('emptyBtn', fin); txt('emptyBtn', T.ui('new_puzzle'));
+  }
+  if (view === 'error') { const e = L.error || {}; txt('errT', T.ui('error_title')); txt('errX', T.ui('errors.' + (e.kind || 'other')));
+    txt('retryBtn', T.ui('retry')); txt('logBtn', T.ui('open_log')); txt('errD', T.ui('details')); txt('errRaw', e.msg || ''); }
+  if (view === 'summary' && L.summary) drawSummary(L.summary);
+  txt('prevBtn', (ar ? '→ ' : '← ') + T.ui('prev'));
+  txt('nextBtn', T.ui('next') + (ar ? ' ←' : ' →'));
+  txt('autoBtn', (L.playing ? '❚❚ ' : '▶ ') + T.ui('auto_on')); $('autoBtn').setAttribute('aria-pressed', String(!!L.playing));
+  $('autoBtn').setAttribute('aria-label', T.ui('auto'));
+  txt('setT', T.ui('settings'));
+  txt('placerL', T.ui('placer')); seg('placer', T.ui('placer'), [['coach', T.ui('coach')], ['me', T.ui('me')]], L.placer, v => send({cmd: 'placer', value: v}));
+  txt('speedL', T.ui('speed')); seg('speed', T.ui('speed'), [['slow', T.ui('slow')], ['normal', T.ui('normal')], ['fast', T.ui('fast')]], L.speed, v => send({cmd: 'speed', value: v}));
+  txt('candsL', T.ui('cands')); sw('candsSw', L.showCands, () => send({cmd: 'cands', value: !L.showCands}));
+  txt('quickL', T.ui('quick')); sw('quickSw', L.quickBasics !== false, () => send({cmd: 'quick', value: L.quickBasics === false}));
+  show('numRow', ar); txt('numL', T.ui('numerals')); sw('numSw', S.eastern, () => send({cmd: 'eastern', value: !S.eastern}));
+  const seen = L.seen || {}, cur = view === 'lesson' && L.step && L.step.tech;
+  txt('pathT', T.ui('path')); txt('pathS', T.ui('path_sum', {n: ALL.filter(k => seen[k]).length, t: ALL.length}));
+  const tiers = $('tiers'); tiers.innerHTML = '';
+  ORDER.forEach(([tier, techs]) => { const h = document.createElement('div'); h.className = 'tier'; h.textContent = T.ui('tiers')[tier]; tiers.appendChild(h);
+    const ul = document.createElement('ul'); ul.className = 'chips';
+    techs.forEach(k => { const li = document.createElement('li'); li.textContent = T.tech(k).name;
+      if (k === cur) { li.className = 'cur'; li.setAttribute('aria-current', 'true'); } else if (seen[k]) li.className = 'seen'; ul.appendChild(li); });
+    tiers.appendChild(ul); });
+  txt('lsStop', T.ui('learn_stop'));
+}
+function stageButtons(id, stage, onpick) {
+  const sp = $(id); sp.innerHTML = '';
+  T.ui('stages').forEach((name, k) => { const li = document.createElement('li'), b = document.createElement('button');
+    b.textContent = name; b.setAttribute('aria-label', T.ui('stage_go', {s: name}));
+    if (k === stage) b.setAttribute('aria-current', 'step'); else if (k < stage) b.className = 'done';
+    b.onclick = () => onpick(k); li.appendChild(b); sp.appendChild(li); });
+}
+function stepKinds(step, stage) { const k = [];
+  if (stage >= 1 && step.pattern.length) k.push('pattern'); if (stage >= 1 && (step.sources || []).length) k.push('sources');
+  if (stage >= 2 && step.elim.length) k.push('elim'); if (stage >= 3 && step.place) k.push('place'); return k; }
+function answerText(step, stage, tx) {
+  let a = stage >= 3 ? tx.answer : '';
+  if (stage >= 3 && !step.place && step.elim.length) a += ' ' + T.ui(step.elim.length === 1 ? 'removed_one' : 'removed', {n: step.elim.length});
+  return a;
+}
+function drawLesson(L) {
+  const step = L.step, stage = L.stage || 0, tx = T.stepText(step);
+  show('review', !!L.review);
+  if (L.review) { txt('reviewT', T.ui('review', {n: L.review.n, t: L.review.t})); txt('liveBtn', T.ui('live')); }
+  txt('tname', tx.name); txt('tlevel', T.ui('level', {n: step.tier})); txt('tshort', tx.short);
+  stageButtons('stages', stage, k => send({cmd: 'stage', value: k}));
+  txt('where', tx.where); txt('why', stage >= 2 ? tx.why : ''); txt('ans', answerText(step, stage, tx));
+  show('turn', !!L.yourTurn && !L.review && stage < 3 && !!step.place);
+  txt('turnT', T.ui('your_turn')); txt('turnX', T.ui('your_turn_text')); txt('revealBtn', T.ui('show_answer'));
+  legend('legend', stepKinds(step, stage));
+  txt('ideaT', T.ui('idea')); txt('ideaX', tx.concept);
+  const key = step.tech + ':' + (step.target ?? '') + ':' + step.elim.length;
+  if (key !== lastStepKey) { lastStepKey = key; $('idea').open = ((L.seen || {})[step.tech] || 0) < 3; }
+}
+function drawSummary(s) {
+  txt('sumTitle', T.ui('solved')); const st = $('stats'); st.innerHTML = '';
+  [[clock(s.time), T.ui('time')], [T.num(s.steps), T.ui('steps')], [s.hardest ? T.tech(s.hardest).name : '–', T.ui('hardest')]].forEach(([v, l]) => {
+    const d = document.createElement('div'); d.innerHTML = '<b></b><span></span>'; d.children[0].textContent = v; d.children[1].textContent = l; st.appendChild(d); });
+  txt('usedTitle', T.ui('used_title'));
+  const max = Math.max(1, ...Object.values(s.used)), bars = $('bars'); bars.innerHTML = '';
+  Object.entries(s.used).sort((a, b) => b[1] - a[1]).forEach(([k, n]) => { const d = document.createElement('div'); d.className = 'hbar';
+    d.innerHTML = '<span class="lbl"></span><i aria-hidden="true"></i><span></span>'; d.children[0].textContent = T.tech(k).name;
+    d.children[1].style.width = (n / max * 110) + 'px'; d.children[2].textContent = T.num(n); bars.appendChild(d); });
+  txt('nextPuzzle', T.ui('new_puzzle'));
+}
+
+/* ---------------- HELP ---------------- */
+let lib = {tech: null, stage: 0}, libBoard = null;
+function drawHelp() {
+  txt('ckTitle', T.ui('check_title')); txt('ckAgain', T.ui('check_again'));
+  const c = S.check, ul = $('checks'); ul.innerHTML = '';
+  const rows = [['ax', 'settings_ax'], ['screen', 'settings_screen'], ['window', 'mirroring'], ['board', null]];
+  let bad = 0;
+  rows.forEach(([k, fix]) => {
+    const r = c ? c[k] : null, ok = r && r.ok, li = document.createElement('li');
+    li.className = !c ? 'wait' : ok ? 'ok' : 'bad'; if (c && !ok) bad++;
+    li.innerHTML = '<span class="ic" aria-hidden="true"></span><span class="txt"><span></span><small></small></span>';
+    li.children[0].textContent = !c ? '…' : ok ? '✓' : '✕';
+    li.querySelector('.txt span').textContent = T.ui('checks')[k];
+    let small = '';
+    if (k === 'board' && r && r.kind) small = T.ui('screen_kind')[r.kind] || '';
+    if (c && !ok && (k === 'ax' || k === 'screen')) small = T.ui('fix_hint');
+    li.querySelector('small').textContent = small;
+    const sr = document.createElement('span'); sr.className = 'sr'; sr.textContent = !c ? T.ui('checking') : ok ? T.ui('run').idle : '✕'; li.appendChild(sr);
+    if (c && !ok && fix) { const b = document.createElement('button'); b.textContent = fix === 'mirroring' ? T.ui('fix_mirroring') : T.ui('fix_settings');
+      b.onclick = () => send({cmd: 'fix', value: fix}); li.appendChild(b); }
+    ul.appendChild(li);
+  });
+  txt('ckSum', !c ? T.ui('checking') : bad ? T.ui(bad === 1 ? 'not_ready_one' : 'not_ready', {n: bad}) : T.ui('all_ready'));
+  txt('waysT', T.ui('ways_title')); txt('wayPlay', T.ui('way_play')); txt('wayLearn', T.ui('way_learn')); txt('helpSteps', T.ui('help_steps'));
+  txt('libT', T.ui('lib_title')); txt('libSub', T.ui('lib_sub'));
+  const lt = $('libTiers'); lt.innerHTML = '';
+  ORDER.forEach(([tier, techs]) => { const h = document.createElement('div'); h.className = 'tier'; h.textContent = T.ui('tiers')[tier]; lt.appendChild(h);
+    const row = document.createElement('div'); row.className = 'chips';
+    techs.filter(k => window.EXAMPLES && EXAMPLES[k]).forEach(k => { const b = document.createElement('button'); b.textContent = T.tech(k).name;
+      b.setAttribute('aria-pressed', String(lib.tech === k)); b.onclick = () => { lib = {tech: k, stage: 0}; drawHelp(); $('libView').scrollIntoView({block: 'nearest'}); };
+      row.appendChild(b); });
+    lt.appendChild(row); });
+  drawLib();
+  txt('colT', T.ui('help_colors')); legend('helpLegend', ['pattern', 'sources', 'elim', 'place']); txt('boxesT', T.ui('help_boxes'));
+  txt('keysT', T.ui('help_keys'));
+  const dl = $('keys'); dl.innerHTML = '';
+  T.ui('keys').forEach(([k, v]) => { const dt = document.createElement('dt'), dd = document.createElement('dd'); dt.innerHTML = '<kbd></kbd>'; dt.firstChild.textContent = k; dd.textContent = v; dl.append(dt, dd); });
+  txt('trT', T.ui('trouble_title'));
+  const tr = $('troubles'); tr.innerHTML = '';
+  T.ui('troubles').forEach(([q, a]) => { const dt = document.createElement('dt'), dd = document.createElement('dd'); dt.textContent = q; dd.textContent = a; tr.append(dt, dd); });
+  txt('plogBtn', T.ui('open_play_log')); txt('llogBtn', T.ui('open_learn_log'));
+}
+function drawLib() {
+  show('libView', !!lib.tech); if (!lib.tech) return;
+  const ex = EXAMPLES[lib.tech], step = ex.step, stage = lib.stage, tx = T.stepText(step);
+  if (!libBoard) libBoard = makeBoard($('libSvg'));
+  libBoard.render({step, stage, board: ex.board, cands: ex.cands, demo: true, lang: S.lang, eastern: S.eastern});
+  stageButtons('libStages', stage, k => { lib.stage = k; drawLib(); });
+  txt('libWhere', tx.where); txt('libWhy', stage >= 2 ? tx.why : ''); txt('libAns', answerText(step, stage, tx));
+  legend('libLegend', stepKinds(step, stage));
+  txt('libIdeaT', T.ui('idea') + ' · ' + tx.name); txt('libIdea', tx.concept);
+  const ar = S.lang === 'ar';
+  txt('libPrev', (ar ? '→ ' : '← ') + T.ui('prev')); $('libPrev').disabled = stage === 0;
+  txt('libNext', T.ui('next') + (ar ? ' ←' : ' →')); $('libNext').disabled = stage === 3;
+  txt('libFrom', T.ui('lib_from'));
+}
+function libGo(d) { lib.stage = Math.max(0, Math.min(3, lib.stage + d)); drawLib(); }
+
+window.app = {update};
+(function () {
+  const bar = $('dragbar'); let last = null, acc = [0, 0], raf = 0;
+  bar.addEventListener('pointerdown', e => { if (e.target.closest('button')) return; last = [e.screenX, e.screenY]; bar.setPointerCapture(e.pointerId); });
+  bar.addEventListener('pointermove', e => { if (!last) return; acc[0] += e.screenX - last[0]; acc[1] += e.screenY - last[1]; last = [e.screenX, e.screenY];
+    if (!raf) raf = requestAnimationFrame(() => { raf = 0; if (acc[0] || acc[1]) send({cmd: 'drag', dx: acc[0], dy: acc[1]}); acc = [0, 0]; }); });
+  const end = () => { last = null; }; bar.addEventListener('pointerup', end); bar.addEventListener('pointercancel', end);
+})();
+document.addEventListener('keydown', e => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const tag = (e.target.tagName || '').toLowerCase();
+  if (['input', 'select', 'textarea'].includes(tag)) return;
+  if (e.key === ' ' && (tag === 'button' || tag === 'summary')) return;
+  if (e.key === 'l' || e.key === 'L') { e.preventDefault(); return send({cmd: 'lang'}); }
+  if (S.view !== 'learn' || !S.learning) return;
+  const ar = S.lang === 'ar';
+  const map = {' ': 'next', ArrowRight: ar ? 'back' : 'next', ArrowLeft: ar ? 'next' : 'back', a: 'reveal', A: 'reveal', p: 'play', P: 'play'};
+  const k = map[e.key]; if (k) { e.preventDefault(); send({cmd: k}); }
+});
+update({});
+send({cmd: 'ready'});
+</script>
+</body></html>

@@ -1,0 +1,20 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+
+# Local state written next to the scripts
+*.log
+debug/
+app_settings.json
+coach_settings.json
+coach_progress.json
+
+# Older scripts kept locally
+legacy/
+
+# macOS
+.DS_Store
